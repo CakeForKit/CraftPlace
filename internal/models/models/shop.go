@@ -17,17 +17,19 @@ type Shop struct {
 	id          uuid.UUID
 	title       string
 	description string
+	userID      uuid.UUID
 }
 
 var (
 	ErrShopValidate = errors.New("model Shop validate error")
 )
 
-func NewShop(id uuid.UUID, title string, description string) (*Shop, error) {
+func NewShop(id uuid.UUID, title string, description string, userID uuid.UUID) (*Shop, error) {
 	s := Shop{
 		id:          id,
 		title:       strings.TrimSpace(title),
 		description: strings.TrimSpace(description),
+		userID:      userID,
 	}
 	if err := s.validate(); err != nil {
 		return nil, err
@@ -40,6 +42,8 @@ func (s *Shop) validate() error {
 		return fmt.Errorf("%w: title", ErrShopValidate)
 	} else if len(s.description) > MaxLenShopDecription {
 		return fmt.Errorf("%w: description", ErrShopValidate)
+	} else if s.userID == uuid.Nil {
+		return fmt.Errorf("%w: userID", ErrShopValidate)
 	}
 	return nil
 }
@@ -54,4 +58,8 @@ func (s *Shop) GetTitle() string {
 
 func (s *Shop) GetDescription() string {
 	return s.description
+}
+
+func (s *Shop) GetUserID() uuid.UUID {
+	return s.userID
 }

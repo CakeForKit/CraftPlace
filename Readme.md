@@ -47,6 +47,76 @@
 ![interface](img/interface_craftPlace.jpg)
 
 
+api:
+
+Search (no auth)
+GET
+- categories/   (список всех категорий по фильтру имени)
+- categories/{id}   (список всех товаров из категории)
+- shops/    (список всех магазинов по фильтру имени)
+- shops/{id}/posts/ (список всех постов данного магазина)
+-  shops/{id}/products/ (список всех товаров данного магазина)
+
+Auth
+POST
+- auth-user/login
+- auth-user/register
+
+User
+PUT
+- update-username
+- update-password
+GET
+- user-shops/
+- user-shops/{id}
+- user-shops/{id}/posts/
+- user-shops/{id}/products/
+
+PUT
+- user-shops/{id} (изменить магазин)
+- user-products/{id} (изменить товар)
+(изменить пост нельзя)
+
+DELETE
+- user-shops/{id} (удалить магазин)
+- user-products/{id} (удалить товар)
+- user-posts/{id} (удалить пост)
+
+POST
+- user-shops/{id} (добавить магазин)
+- user-products/{id} (добавить товар)
+- user-posts/{id} (добавить пост)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -18,18 +18,22 @@ type Product struct {
 	title       string
 	description string
 	cost        uint64
+	shopID      uuid.UUID
+	categoryIDs uuid.UUIDs
 }
 
 var (
 	ErrProductValidate = errors.New("model Product validate error")
 )
 
-func NewProduct(id uuid.UUID, title string, description string, cost uint64) (*Product, error) {
+func NewProduct(id uuid.UUID, title string, description string, cost uint64, shopID uuid.UUID, categoryIDs uuid.UUIDs) (*Product, error) {
 	p := Product{
 		id:          id,
 		title:       strings.TrimSpace(title),
 		description: strings.TrimSpace(description),
 		cost:        cost,
+		shopID:      shopID,
+		categoryIDs: categoryIDs,
 	}
 	if err := p.validate(); err != nil {
 		return nil, err
@@ -42,6 +46,8 @@ func (p *Product) validate() error {
 		return fmt.Errorf("%w: title", ErrProductValidate)
 	} else if len(p.description) > MaxLenProductDecription {
 		return fmt.Errorf("%w: description", ErrProductValidate)
+	} else if p.shopID == uuid.Nil {
+		return fmt.Errorf("%w: shopID", ErrProductValidate)
 	}
 	return nil
 }
@@ -60,4 +66,8 @@ func (p *Product) GetDescription() string {
 
 func (p *Product) GetCost() uint64 {
 	return p.cost
+}
+
+func (p *Product) GetShopID() uuid.UUID {
+	return p.shopID
 }

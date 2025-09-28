@@ -1,0 +1,63 @@
+package models
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
+)
+
+const (
+	MaxLenProductTitle      = 50
+	MaxLenProductDecription = 200
+)
+
+type Product struct {
+	id          uuid.UUID
+	title       string
+	description string
+	cost        uint64
+}
+
+var (
+	ErrProductValidate = errors.New("model Product validate error")
+)
+
+func NewProduct(id uuid.UUID, title string, description string, cost uint64) (*Product, error) {
+	p := Product{
+		id:          id,
+		title:       strings.TrimSpace(title),
+		description: strings.TrimSpace(description),
+		cost:        cost,
+	}
+	if err := p.validate(); err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+func (p *Product) validate() error {
+	if p.title == "" || len(p.title) > MaxLenProductTitle {
+		return fmt.Errorf("%w: title", ErrProductValidate)
+	} else if len(p.description) > MaxLenProductDecription {
+		return fmt.Errorf("%w: description", ErrProductValidate)
+	}
+	return nil
+}
+
+func (p *Product) GetID() uuid.UUID {
+	return p.id
+}
+
+func (p *Product) GetTitle() string {
+	return p.title
+}
+
+func (p *Product) GetDescription() string {
+	return p.description
+}
+
+func (p *Product) GetCost() uint64 {
+	return p.cost
+}

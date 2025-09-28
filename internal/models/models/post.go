@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	"github.com/google/uuid"
 )
 
@@ -46,6 +47,15 @@ func (p *Post) validate() error {
 		return fmt.Errorf("%w: shopID", ErrPostValidate)
 	}
 	return nil
+}
+
+func (p *Post) ToResponse() reqresp.PostResponse {
+	return reqresp.PostResponse{
+		ID:              p.id.String(),
+		Description:     p.description,
+		TimePublication: p.timePublication,
+		ShopID:          p.shopID,
+	}
 }
 
 func (p *Post) GetID() uuid.UUID {

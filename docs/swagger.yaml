@@ -1,0 +1,236 @@
+basePath: /api/v1
+definitions:
+  reqresp.CategoryResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Eco
+        type: string
+    required:
+    - description
+    type: object
+  reqresp.PostResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      timePublication:
+        example: "2023-06-15T10:00:00Z"
+        type: string
+    required:
+    - description
+    - shopID
+    type: object
+  reqresp.ProductResponse:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 200
+        minimum: 0
+        type: integer
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Eco
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - shopID
+    type: object
+  reqresp.ShopResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Eco
+        type: string
+      userID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+    required:
+    - description
+    - userID
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для платформы для мастеров ручной работы
+  title: CraftPlace
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список категорий с возможностью фильтрации
+      parameters:
+      - description: Фильтр по названию категории
+        in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.CategoryResponse'
+            type: array
+      summary: Получить категории
+      tags:
+      - Поиск
+  /categories/{id_category}/products:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список товаров указанной категории с возможностью фильтрации
+      parameters:
+      - description: ID категории
+        format: uuid
+        in: path
+        name: id_category
+        required: true
+        type: string
+      - description: Фильтр по названию товара
+        in: query
+        name: title
+        type: string
+      - default: 100000
+        description: Максимальная цена товара
+        in: query
+        name: max_cost
+        type: integer
+      - default: 0
+        description: Минимальная цена товара
+        in: query
+        name: min_cost
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.ProductResponse'
+            type: array
+      summary: Получить товары категории
+      tags:
+      - Поиск
+  /shops:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список магазинов с возможностью фильтрации
+      parameters:
+      - description: Фильтр по названию магазина
+        in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.ShopResponse'
+            type: array
+      summary: Получить магазины
+      tags:
+      - Поиск
+  /shops/{id_shop}/posts:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список постов указанного магазина
+      parameters:
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.PostResponse'
+            type: array
+      summary: Получить посты магазина
+      tags:
+      - Поиск
+  /shops/{id_shop}/products:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список товаров указанного магазина с возможностью фильтрации
+      parameters:
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Фильтр по названию товара
+        in: query
+        name: title
+        type: string
+      - default: 100000
+        description: Максимальная цена товара
+        in: query
+        name: max_cost
+        type: integer
+      - default: 0
+        description: Минимальная цена товара
+        in: query
+        name: min_cost
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.ProductResponse'
+            type: array
+      summary: Получить товары магазина
+      tags:
+      - Поиск
+swagger: "2.0"

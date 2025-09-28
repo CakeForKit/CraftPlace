@@ -39,13 +39,16 @@
 ## 10. Формализация ключевых бизнес-процессов (BPMN-нотация).
 ![BPMN](img/bpmn_craftPlace.png)
 
-
 ## Верхнеуровневое разбиение на компоненты
 ![BPMN](img/components_craftPlace.png)
 
 ## Черновик интерфейса
 ![interface](img/interface_craftPlace.jpg)
 
+## Документация (Swagger)
+[swagger.yaml](./docs/swagger.yaml)
+
+[http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
 api:
 

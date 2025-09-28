@@ -1,13 +1,29 @@
+SCRIPTS := ./scripts
+DC_CI := ./deployment/docker-compose.ci.yml
+DC_DEV := ./deployment/docker-compose.dev.yml
+TEST_DB_ENV := ./configs/test_db.env
 
+.PHONY: run_app
+run_app:
+# --no-cache
+	docker compose -v -f $(DC_DEV) build --progress=plain app_craftplace
+	docker compose -v -f $(DC_DEV) up  app_craftplace
+
+.PHONY: down_app
+down_app:
+	docker compose -f $(DC_DEV) down -v app_craftplace
+
+.PHONY: swagger
+swagger:
+	swag init -g ./cmd/dev/main.go --output ./docs
+
+
+# ---- Allure -----
 ALLURE_OUTPUT_PATH := $(shell pwd)
 ALLURE_RESULTS_DIR := $(shell pwd)/allure-results
 ALLURE_REPORT_DIR := $(shell pwd)/allure-report
 export ALLURE_RESULTS_DIR
 export ALLURE_OUTPUT_PATH
-
-SCRIPTS := ./scripts
-DC_CI := ./deployment/docker-compose.ci.yml
-TEST_DB_ENV := ./configs/test_db.env
 
 .PHONY: allure
 allure: unit_test report_allure open_allure
@@ -35,27 +51,27 @@ open_allure:
 	allure open $(ALLURE_REPORT_DIR)
 	
 
-.PHONY: run_app
-run_app:
+.PHONY: test_run_app
+test_run_app:
 # --no-cache
 	docker compose -v -f $(DC_CI) --env-file $(TEST_DB_ENV) build --progress=plain test-runner
 	docker compose -v -f $(DC_CI) --env-file $(TEST_DB_ENV) up  test-runner
 
-.PHONY: down_app
-down_app:
+.PHONY: test_down_app
+test_down_app:
 	docker compose -f $(DC_CI) down -v test-runner
 
 
-.PHONY: run_serv
-run_serv:
+.PHONY: test_run_serv
+test_run_serv:
 	docker compose -f $(DC_CI) --env-file $(TEST_DB_ENV) up -d postgres migrator redis_artworks
 
-.PHONY: down_serv
-down_serv:
+.PHONY: test_down_serv
+test_down_serv:
 	docker compose -f $(DC_CI) down -v postgres migrator redis_artworks
 
-.PHONY: build
-build:
+.PHONY: test_build
+test_build:
 	docker compose -f $(DC_CI) --env-file $(TEST_DB_ENV) build
 
 
@@ -71,4 +87,6 @@ clear_docker:
 	docker rmi deployment-test-runner:latest
 # Полная очистка
 	docker system prune -a -f
+
+
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	"github.com/google/uuid"
 )
 
@@ -46,6 +47,15 @@ func (s *Shop) validate() error {
 		return fmt.Errorf("%w: userID", ErrShopValidate)
 	}
 	return nil
+}
+
+func (p *Shop) ToResponse() reqresp.ShopResponse {
+	return reqresp.ShopResponse{
+		ID:          p.id.String(),
+		Title:       p.title,
+		Description: p.description,
+		UserID:      p.userID,
+	}
 }
 
 func (s *Shop) GetID() uuid.UUID {

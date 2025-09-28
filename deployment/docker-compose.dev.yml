@@ -1,0 +1,14 @@
+services:
+  app_craftplace:
+    container_name: app_craftplace
+    build:
+      context: ../
+      dockerfile: ./cmd/dev/Dockerfile 
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+    volumes:
+      - ../:/app          # Монтируем весь проект в контейнер
+    command: air -c ./cmd/dev/.air.toml

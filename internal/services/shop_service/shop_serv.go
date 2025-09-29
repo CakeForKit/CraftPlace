@@ -13,7 +13,7 @@ type ShopServ interface {
 	GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error)
 	Add(ctx context.Context, addReq reqresp.AddShopRequest) error
 	Delete(ctx context.Context, shopID uuid.UUID) error
-	Update(ctx context.Context, updateReq reqresp.UpdateShopRequest) error
+	Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) error
 }
 
 var (

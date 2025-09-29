@@ -1,10 +1,15 @@
-package auth
+package authuser
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
+	"github.com/google/uuid"
 )
 
 type AuthUser interface {
@@ -13,40 +18,46 @@ type AuthUser interface {
 	VerifyByToken(token string) (*tokenmaker.Payload, error)
 }
 
-/*
+var (
+	ErrDuplicateLoginUser = errors.New("err Duplicate Login User")
+	ErrUserNotFound       = errors.New("err User Not Found")
+)
+
 type authUser struct {
 	tokenMaker tokenmaker.TokenMaker
-	config     cnfg.AppConfig
-	userrep    userrep.UserRep
 	hasher     hasher.Hasher
+	// config     cnfg.AppConfig
+	// userrep    userrep.UserRep
+
 }
 
-func NewAuthUser(config cnfg.AppConfig, urep userrep.UserRep, tokenMaker tokenmaker.TokenMaker, hasher hasher.Hasher) (AuthUser, error) {
+// config cnfg.AppConfig, urep userrep.UserRep,
+func NewAuthUser(tokenMaker tokenmaker.TokenMaker, hasher hasher.Hasher) AuthUser {
 	server := &authUser{
 		tokenMaker: tokenMaker,
-		config:     config,
-		userrep:    urep,
 		hasher:     hasher,
+		// config:     config,
+		// userrep:    urep,
 	}
-
-	return server, nil
+	return server
 }
 
-func (s *authUser) LoginUser(ctx context.Context, lur LoginUserRequest) (string, error) {
-	user, err := s.userrep.GetByLogin(ctx, lur.Login)
-	if err != nil {
-		return "", err
-	}
+func (s *authUser) LoginUser(ctx context.Context, lur reqresp.LoginUserRequest) (string, error) {
+	// user, err := s.userrep.GetByLogin(ctx, lur.Login)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	err = s.hasher.CheckPassword(lur.Password, user.GetHashedPassword())
-	if err != nil {
-		return "", err
-	}
-
+	// err = s.hasher.CheckPassword(lur.Password, user.GetHashedPassword())
+	// if err != nil {
+	// 	return "", err
+	// }
+	userID := uuid.New()
+	s_config_AccessTokenDuration := time.Hour
 	accessToken, err := s.tokenMaker.CreateToken(
-		user.GetID(),
+		userID,
 		tokenmaker.UserRole,
-		s.config.AccessTokenDuration,
+		s_config_AccessTokenDuration,
 	)
 	if err != nil {
 		return "", err
@@ -54,7 +65,7 @@ func (s *authUser) LoginUser(ctx context.Context, lur LoginUserRequest) (string,
 	return accessToken, nil
 }
 
-func (s *authUser) RegisterUser(ctx context.Context, rur RegisterUserRequest) error {
+func (s *authUser) RegisterUser(ctx context.Context, rur reqresp.RegisterUserRequest) error {
 	hashedPassword, err := s.hasher.HashPassword(rur.Password)
 	if err != nil {
 		return err
@@ -64,18 +75,15 @@ func (s *authUser) RegisterUser(ctx context.Context, rur RegisterUserRequest) er
 		rur.Username,
 		rur.Login,
 		hashedPassword,
-		time.Now(),
-		rur.Email,
-		rur.SubscribeEmail,
 	)
 	if err != nil {
 		return nil
 	}
-	err = s.userrep.Add(ctx, &user)
-	return err
+	_ = user
+	// err = s.userrep.Add(ctx, &user)
+	return nil
 }
 
 func (s *authUser) VerifyByToken(tokenStr string) (*tokenmaker.Payload, error) {
 	return s.tokenMaker.VerifyToken(tokenStr, tokenmaker.UserRole)
 }
-*/

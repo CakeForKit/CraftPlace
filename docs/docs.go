@@ -15,6 +15,77 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth-user/login": {
+            "post": {
+                "description": "Аутентифицирует пользователя и возвращает токен доступа",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "аутентификация"
+                ],
+                "summary": "Вход пользователя",
+                "parameters": [
+                    {
+                        "description": "Учетные данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.LoginUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно аутентифицирован"
+                    },
+                    "400": {
+                        "description": "Неверные входные параметры"
+                    },
+                    "401": {
+                        "description": "Ошибка аутентификации"
+                    }
+                }
+            }
+        },
+        "/auth-user/register": {
+            "post": {
+                "description": "Регистрирует нового пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "аутентификация"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.RegisterUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь зарегистрирован"
+                    },
+                    "400": {
+                        "description": "Неверные входные параметры"
+                    },
+                    "401": {
+                        "description": "Ошибка аутентификации"
+                    },
+                    "409": {
+                        "description": "Попытка повторной регистрации"
+                    }
+                }
+            }
+        },
         "/categories": {
             "get": {
                 "description": "Возвращает список категорий с возможностью фильтрации",
@@ -254,6 +325,26 @@ const docTemplate = `{
                 }
             }
         },
+        "reqresp.LoginUserRequest": {
+            "type": "object",
+            "required": [
+                "login",
+                "password"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 4,
+                    "example": "ulogin"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 4,
+                    "example": "12345678"
+                }
+            }
+        },
         "reqresp.PostResponse": {
             "type": "object",
             "required": [
@@ -316,6 +407,32 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Eco"
+                }
+            }
+        },
+        "reqresp.RegisterUserRequest": {
+            "type": "object",
+            "required": [
+                "login",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 4,
+                    "example": "ulogin"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 4,
+                    "example": "12345678"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "uname"
                 }
             }
         },

@@ -55,10 +55,10 @@ api:
 Search (no auth)
 GET
 - categories/   (список всех категорий по фильтру имени)
-- categories/{id}   (список всех товаров из категории)
+- categories/{category_id}   (список всех товаров из категории)
 - shops/    (список всех магазинов по фильтру имени)
-- shops/{id}/posts/ (список всех постов данного магазина)
--  shops/{id}/products/ (список всех товаров данного магазина)
+- shops/{shop_id}/posts/ (список всех постов данного магазина)
+-  shops/{shop_id}/products/ (список всех товаров данного магазина)
 
 Auth
 POST
@@ -69,11 +69,17 @@ User
 PUT
 - update-username
 - update-password
+
 GET
 - user-shops/
-- user-shops/{id}
-- user-shops/{id}/posts/
-- user-shops/{id}/products/
+<!-- - user-shops/{id}/posts/
+- user-shops/{id}/products/ -->
+<!-- - user-shops/{id} -->
+
+POST
+- user-shops (добавить магазин)
+- user-products/{shop_id} (добавить товар в данный магазин)
+- user-posts/{shop_id} (добавить пост в данный магазин)
 
 PUT
 - user-shops/{id} (изменить магазин)
@@ -85,10 +91,7 @@ DELETE
 - user-products/{id} (удалить товар)
 - user-posts/{id} (удалить пост)
 
-POST
-- user-shops/{id} (добавить магазин)
-- user-products/{id} (добавить товар)
-- user-posts/{id} (добавить пост)
+
 
 
 

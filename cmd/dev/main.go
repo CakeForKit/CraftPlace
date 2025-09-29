@@ -12,6 +12,9 @@ import (
 
 	_ "github.com/CakeForKit/CraftPlace.git/docs"
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
+	authuser "github.com/CakeForKit/CraftPlace.git/internal/services/auth/auth_user"
+	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
+	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -46,6 +49,15 @@ func main() {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// ----- Services -----
+	tokenMaker, err := tokenmaker.NewTokenMaker("12345678901234567890123456789012")
+	if err != nil {
+		panic(err.Error())
+	}
+	hasher, err := hasher.NewHasher()
+	if err != nil {
+		panic(err.Error())
+	}
+	authUser := authuser.NewAuthUser(tokenMaker, hasher)
 	searcherServ := searcher.NewSearcher()
 	// --------------------
 
@@ -54,6 +66,8 @@ func main() {
 	// ------------------
 	searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
 	_ = searcherRouter
+	authUserRouter := api.NewAuthUserRouter(apiGroup, authUser)
+	_ = authUserRouter
 
 	engine.Run(fmt.Sprintf(":%d", appCnfg_Port))
 }

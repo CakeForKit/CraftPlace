@@ -1,4 +1,4 @@
-package auth_test
+package authuser_test
 
 /*
 type AuthUserServiceSuite struct {

@@ -83,13 +83,13 @@ POST
 
 PUT
 - user-shops/{id} (изменить магазин)
-- user-products/{id} (изменить товар)
-(изменить пост нельзя)
+- user-products (изменить товар)
+- (изменить пост нельзя)
 
 DELETE
-- user-shops/{id} (удалить магазин)
-- user-products/{id} (удалить товар)
-- user-posts/{id} (удалить пост)
+- user-shops (удалить магазин)
+- user-products (удалить товар)
+- user-posts (удалить пост)
 
 
 

@@ -1,5 +1,60 @@
 basePath: /api/v1
 definitions:
+  reqresp.AddPostRequest:
+    properties:
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+    required:
+    - description
+    - shopID
+    type: object
+  reqresp.AddProductRequest:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 100
+        minimum: 0
+        type: integer
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Звезды
+        maxLength: 255
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - shopID
+    - title
+    type: object
+  reqresp.AddShopRequest:
+    properties:
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Звезды
+        maxLength: 255
+        type: string
+    required:
+    - description
+    - title
+    type: object
   reqresp.CategoryResponse:
     properties:
       description:
@@ -14,6 +69,24 @@ definitions:
         type: string
     required:
     - description
+    type: object
+  reqresp.DeletePostRequest:
+    properties:
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+    type: object
+  reqresp.DeleteProductRequest:
+    properties:
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+    type: object
+  reqresp.DeleteShopRequest:
+    properties:
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
     type: object
   reqresp.LoginUserRequest:
     properties:
@@ -110,12 +183,71 @@ definitions:
       title:
         example: Eco
         type: string
-      userID:
+    required:
+    - description
+    type: object
+  reqresp.UpdateProductRequest:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 200
+        minimum: 0
+        type: integer
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
         example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Лучшие звезды
+        maxLength: 255
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - shopID
+    - title
+    type: object
+  reqresp.UpdateShopRequest:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Лучшие звезды
+        maxLength: 255
         type: string
     required:
     - description
-    - userID
+    - title
+    type: object
+  reqresp.UpdateUserPasswordRequest:
+    properties:
+      password:
+        example: "12345678"
+        minLength: 4
+        type: string
+    required:
+    - password
+    type: object
+  reqresp.UpdateUsernameRequest:
+    properties:
+      username:
+        example: uname
+        maxLength: 50
+        type: string
+    required:
+    - username
     type: object
 host: localhost:8080
 info:
@@ -314,4 +446,344 @@ paths:
       summary: Получить товары магазина
       tags:
       - Поиск
+  /user/update-password:
+    put:
+      consumes:
+      - application/json
+      description: Изменяет пароль текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для обновления пароля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateUserPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить пароль пользователя
+      tags:
+      - Пользователь
+  /user/update-username:
+    put:
+      consumes:
+      - application/json
+      description: Изменяет имя текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для обновления имени
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить имя пользователя
+      tags:
+      - Пользователь
+  /user/user-posts:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет пост пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для удаления поста
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.DeletePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пост успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить пост
+      tags:
+      - Пользователь
+  /user/user-posts/{id_shop}:
+    put:
+      consumes:
+      - application/json
+      description: Добавляет новый пост в указанный магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные нового поста
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddPostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пост успешно добавлен
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить пост в магазин
+      tags:
+      - Пользователь
+  /user/user-products:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет товар пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для удаления товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.DeleteProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Товар успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить товар
+      tags:
+      - Пользователь
+    post:
+      consumes:
+      - application/json
+      description: Обновляет данные товара пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для обновления товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Товар успешно обновлен
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить товар
+      tags:
+      - Пользователь
+  /user/user-products/{id_shop}:
+    put:
+      consumes:
+      - application/json
+      description: Добавляет новый товар в указанный магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные нового товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Товар успешно добавлен
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить товар в магазин
+      tags:
+      - Пользователь
+  /user/user-shops:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для удаления магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.DeleteShopRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Магазин успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить магазин
+      tags:
+      - Пользователь
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список магазинов текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список магазинов пользователя
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.ShopResponse'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Получить магазины пользователя
+      tags:
+      - Пользователь
+    post:
+      consumes:
+      - application/json
+      description: Создает новый магазин для текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные нового магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddShopRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Магазин успешно создан
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить магазин пользователя
+      tags:
+      - Пользователь
+  /user/user-shops/{id_shop}:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет данные указанного магазина пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные для обновления магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateShopRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Магазин успешно обновлен
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить магазин
+      tags:
+      - Пользователь
 swagger: "2.0"

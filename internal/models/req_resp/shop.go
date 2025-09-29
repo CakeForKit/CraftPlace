@@ -18,3 +18,6 @@ type ShopResponse struct {
 	Description string `json:"description" binding:"required,max=255" example:"Лучший магазин сережек"`
 	// UserID      uuid.UUID `json:"userID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 }
+type DeleteShopRequest struct {
+	ID string `json:"id" example:"bb2e8400-e29b-41d4-a716-446655442222"`
+}

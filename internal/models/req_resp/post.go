@@ -22,3 +22,7 @@ type PostResponse struct {
 	TimePublication time.Time `json:"timePublication" example:"2023-06-15T10:00:00Z"`
 	ShopID          uuid.UUID `json:"shopID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 }
+
+type DeletePostRequest struct {
+	ID string `json:"id" example:"bb2e8400-e29b-41d4-a716-446655442222"`
+}

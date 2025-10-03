@@ -84,7 +84,7 @@ definitions:
     type: object
   reqresp.DeleteShopRequest:
     properties:
-      id:
+      id_shop:
         example: bb2e8400-e29b-41d4-a716-446655442222
         type: string
     type: object
@@ -177,14 +177,27 @@ definitions:
         example: Лучший магазин сережек
         maxLength: 255
         type: string
-      id:
+      id_shop:
         example: bb2e8400-e29b-41d4-a716-446655442222
         type: string
       title:
         example: Eco
         type: string
+      userID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
     required:
     - description
+    - userID
+    type: object
+  reqresp.UpdateLoginRequest:
+    properties:
+      login:
+        example: uname
+        maxLength: 50
+        type: string
+    required:
+    - login
     type: object
   reqresp.UpdateProductRequest:
     properties:
@@ -223,6 +236,9 @@ definitions:
         example: Лучший магазин сережек
         maxLength: 255
         type: string
+      id_shop:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
       title:
         example: Лучшие звезды
         maxLength: 255
@@ -240,14 +256,14 @@ definitions:
     required:
     - password
     type: object
-  reqresp.UpdateUsernameRequest:
+  reqresp.UserResponse:
     properties:
-      username:
+      login:
         example: uname
         maxLength: 50
         type: string
     required:
-    - username
+    - login
     type: object
 host: localhost:8080
 info:
@@ -324,11 +340,11 @@ paths:
       summary: Получить категории
       tags:
       - Поиск
-  /categories/{id_category}/products:
+  /categories/{id_category}:
     get:
       consumes:
       - application/json
-      description: Возвращает список товаров указанной категории с возможностью фильтрации
+      description: Возвращает информацию о категории по её идентификатору
       parameters:
       - description: ID категории
         format: uuid
@@ -336,30 +352,117 @@ paths:
         name: id_category
         required: true
         type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о категории
+          schema:
+            $ref: '#/definitions/reqresp.CategoryResponse'
+        "400":
+          description: Неверный формат ID категории
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Категория не найдена
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить категорию по ID
+      tags:
+      - Поиск
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список постов с возможностью фильтрации по магазину
+      parameters:
+      - description: Фильтр по ID магазина
+        format: uuid
+        in: query
+        name: id_shop
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список постов
+          schema:
+            items:
+              $ref: '#/definitions/reqresp.PostResponse'
+            type: array
+        "400":
+          description: Неверный формат ID магазина
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить посты
+      tags:
+      - Поиск
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список товаров с возможностью фильтрации по различным
+        параметрам
+      parameters:
       - description: Фильтр по названию товара
         in: query
         name: title
         type: string
-      - default: 100000
-        description: Максимальная цена товара
-        in: query
-        name: max_cost
-        type: integer
       - default: 0
         description: Минимальная цена товара
         in: query
         name: min_cost
         type: integer
+      - default: 100000
+        description: Максимальная цена товара
+        in: query
+        name: max_cost
+        type: integer
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID магазина
+        format: uuid
+        in: query
+        name: id_shop
+        type: string
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID категории
+        format: uuid
+        in: query
+        name: id_category
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Список товаров
           schema:
             items:
               $ref: '#/definitions/reqresp.ProductResponse'
             type: array
-      summary: Получить товары категории
+        "400":
+          description: Неверный формат параметров
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить товары
       tags:
       - Поиск
   /shops:
@@ -371,6 +474,12 @@ paths:
       - description: Фильтр по названию магазина
         in: query
         name: title
+        type: string
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID пользователя
+        format: uuid
+        in: query
+        name: id_user
         type: string
       produces:
       - application/json
@@ -384,11 +493,11 @@ paths:
       summary: Получить магазины
       tags:
       - Поиск
-  /shops/{id_shop}/posts:
+  /shops/{id_shop}:
     get:
       consumes:
       - application/json
-      description: Возвращает список постов указанного магазина
+      description: Возвращает информацию о магазине по его идентификатору
       parameters:
       - description: ID магазина
         format: uuid
@@ -400,54 +509,96 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Информация о магазине
           schema:
-            items:
-              $ref: '#/definitions/reqresp.PostResponse'
-            type: array
-      summary: Получить посты магазина
+            $ref: '#/definitions/reqresp.ShopResponse'
+        "400":
+          description: Неверный формат ID магазина
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Магазин не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить магазин по ID
       tags:
       - Поиск
-  /shops/{id_shop}/products:
+  /user/{id_user}:
     get:
       consumes:
       - application/json
-      description: Возвращает список товаров указанного магазина с возможностью фильтрации
+      description: Возвращает информацию о пользователе по его идентификатору
       parameters:
-      - description: ID магазина
+      - description: ID пользователя
         format: uuid
         in: path
-        name: id_shop
+        name: id_user
         required: true
         type: string
-      - description: Фильтр по названию товара
-        in: query
-        name: title
-        type: string
-      - default: 100000
-        description: Максимальная цена товара
-        in: query
-        name: max_cost
-        type: integer
-      - default: 0
-        description: Минимальная цена товара
-        in: query
-        name: min_cost
-        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Информация о пользователе
           schema:
-            items:
-              $ref: '#/definitions/reqresp.ProductResponse'
-            type: array
-      summary: Получить товары магазина
+            $ref: '#/definitions/reqresp.UserResponse'
+        "400":
+          description: Неверный формат ID пользователя
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить пользователя по ID
       tags:
-      - Поиск
+      - Пользователь
+  /user/update-login:
+    patch:
+      consumes:
+      - application/json
+      description: Изменяет логин текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для обновления логина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить логин пользователя
+      tags:
+      - Пользователь
   /user/update-password:
-    put:
+    patch:
       consumes:
       - application/json
       description: Изменяет пароль текущего авторизованного пользователя
@@ -474,36 +625,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Обновить пароль пользователя
-      tags:
-      - Пользователь
-  /user/update-username:
-    put:
-      consumes:
-      - application/json
-      description: Изменяет имя текущего авторизованного пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Данные для обновления имени
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reqresp.UpdateUsernameRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешное обновление
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Обновить имя пользователя
       tags:
       - Пользователь
   /user/user-posts:
@@ -535,9 +656,8 @@ paths:
       - ApiKeyAuth: []
       summary: Удалить пост
       tags:
-      - Пользователь
-  /user/user-posts/{id_shop}:
-    put:
+      - Посты
+    post:
       consumes:
       - application/json
       description: Добавляет новый пост в указанный магазин пользователя
@@ -545,12 +665,6 @@ paths:
       - description: Bearer токен
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: ID магазина
-        format: uuid
-        in: path
-        name: id_shop
         required: true
         type: string
       - description: Данные нового поста
@@ -571,7 +685,7 @@ paths:
       - ApiKeyAuth: []
       summary: Добавить пост в магазин
       tags:
-      - Пользователь
+      - Посты
   /user/user-products:
     delete:
       consumes:
@@ -601,8 +715,37 @@ paths:
       - ApiKeyAuth: []
       summary: Удалить товар
       tags:
-      - Пользователь
+      - Изделия
     post:
+      consumes:
+      - application/json
+      description: Добавляет новый товар в указанный магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные нового товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Товар успешно добавлен
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить товар в магазин
+      tags:
+      - Изделия
+    put:
       consumes:
       - application/json
       description: Обновляет данные товара пользователя
@@ -630,43 +773,7 @@ paths:
       - ApiKeyAuth: []
       summary: Обновить товар
       tags:
-      - Пользователь
-  /user/user-products/{id_shop}:
-    put:
-      consumes:
-      - application/json
-      description: Добавляет новый товар в указанный магазин пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: ID магазина
-        format: uuid
-        in: path
-        name: id_shop
-        required: true
-        type: string
-      - description: Данные нового товара
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reqresp.AddProductRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Товар успешно добавлен
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Добавить товар в магазин
-      tags:
-      - Пользователь
+      - Изделия
   /user/user-shops:
     delete:
       consumes:
@@ -696,31 +803,7 @@ paths:
       - ApiKeyAuth: []
       summary: Удалить магазин
       tags:
-      - Пользователь
-    get:
-      consumes:
-      - application/json
-      description: Возвращает список магазинов текущего авторизованного пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список магазинов пользователя
-          schema:
-            items:
-              $ref: '#/definitions/reqresp.ShopResponse'
-            type: array
-      security:
-      - ApiKeyAuth: []
-      summary: Получить магазины пользователя
-      tags:
-      - Пользователь
+      - Магазины
     post:
       consumes:
       - application/json
@@ -747,11 +830,10 @@ paths:
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Добавить магазин пользователя
+      summary: Добавить магазин
       tags:
-      - Пользователь
-  /user/user-shops/{id_shop}:
-    post:
+      - Магазины
+    put:
       consumes:
       - application/json
       description: Обновляет данные указанного магазина пользователя
@@ -759,12 +841,6 @@ paths:
       - description: Bearer токен
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: ID магазина
-        format: uuid
-        in: path
-        name: id_shop
         required: true
         type: string
       - description: Данные для обновления магазина
@@ -785,5 +861,5 @@ paths:
       - ApiKeyAuth: []
       summary: Обновить магазин
       tags:
-      - Пользователь
+      - Магазины
 swagger: "2.0"

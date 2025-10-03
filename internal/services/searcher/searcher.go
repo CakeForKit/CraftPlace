@@ -12,14 +12,17 @@ import (
 
 type Searcher interface {
 	GetCategories(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error)
-	GetPosts(ctx context.Context, shopID uuid.UUID) ([]*models.Post, error)
-	GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error)
 	GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error)
-	// GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (models.Category, error)
+	GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
+	GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error)
+
+	GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error)
+	GetShopByID(ctx context.Context, shopID uuid.UUID) (*models.Shop, error)
 }
 
 var (
-	ErrCategoryNotFpund = errors.New("category not found")
+	ErrCategoryNotFound = errors.New("category not found")
+	ErrShopNotFound     = errors.New("shop not found")
 )
 
 func NewSearcher() Searcher {
@@ -38,7 +41,7 @@ func (s *searcher) GetCategories(ctx context.Context, filterOps *reqresp.Categor
 	return res, nil
 }
 
-func (s *searcher) GetPosts(ctx context.Context, shopID uuid.UUID) ([]*models.Post, error) {
+func (s *searcher) GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {
 	postCreator := testobj.NewPostMother()
 	res := make([]*models.Post, 3)
 	for i := range res {
@@ -65,4 +68,12 @@ func (s *searcher) GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) 
 	return res, nil
 }
 
-// func (s *searcher) GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (models.Category, error)
+func (s *searcher) GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error) {
+	categoryCreator := testobj.NewCategoryMother()
+	return categoryCreator.CategoryP(), nil
+}
+
+func (s *searcher) GetShopByID(ctx context.Context, shopID uuid.UUID) (*models.Shop, error) {
+	creator := testobj.NewShopMother()
+	return creator.ShopP(), nil
+}

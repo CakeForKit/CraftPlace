@@ -51,7 +51,7 @@ func (s *Shop) validate() error {
 
 func (p *Shop) ToResponse() reqresp.ShopResponse {
 	return reqresp.ShopResponse{
-		ID:          p.id.String(),
+		ShopID:      p.id.String(),
 		Title:       p.title,
 		Description: p.description,
 		UserID:      p.userID,

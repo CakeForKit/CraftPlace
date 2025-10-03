@@ -120,9 +120,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories/{id_category}/products": {
+        "/categories/{id_category}": {
             "get": {
-                "description": "Возвращает список товаров указанной категории с возможностью фильтрации",
+                "description": "Возвращает информацию о категории по её идентификатору",
                 "consumes": [
                     "application/json"
                 ],
@@ -132,7 +132,7 @@ const docTemplate = `{
                 "tags": [
                     "Поиск"
                 ],
-                "summary": "Получить товары категории",
+                "summary": "Получить категорию по ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -141,11 +141,113 @@ const docTemplate = `{
                         "name": "id_category",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о категории",
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.CategoryResponse"
+                        }
                     },
+                    "400": {
+                        "description": "Неверный формат ID категории",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Категория не найдена",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "description": "Возвращает список постов с возможностью фильтрации по магазину",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Поиск"
+                ],
+                "summary": "Получить посты",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Фильтр по ID магазина",
+                        "name": "id_shop",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список постов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/reqresp.PostResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID магазина",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "description": "Возвращает список товаров с возможностью фильтрации по различным параметрам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Поиск"
+                ],
+                "summary": "Получить товары",
+                "parameters": [
                     {
                         "type": "string",
                         "description": "Фильтр по названию товара",
                         "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Минимальная цена товара",
+                        "name": "min_cost",
                         "in": "query"
                     },
                     {
@@ -156,21 +258,44 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Минимальная цена товара",
-                        "name": "min_cost",
+                        "type": "string",
+                        "format": "uuid",
+                        "default": "00000000-0000-0000-0000-000000000000",
+                        "description": "Фильтр по ID магазина",
+                        "name": "id_shop",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "default": "00000000-0000-0000-0000-000000000000",
+                        "description": "Фильтр по ID категории",
+                        "name": "id_category",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Список товаров",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/reqresp.ProductResponse"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат параметров",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -195,6 +320,14 @@ const docTemplate = `{
                         "description": "Фильтр по названию магазина",
                         "name": "title",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "default": "00000000-0000-0000-0000-000000000000",
+                        "description": "Фильтр по ID пользователя",
+                        "name": "id_user",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -210,9 +343,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shops/{id_shop}/posts": {
+        "/shops/{id_shop}": {
             "get": {
-                "description": "Возвращает список постов указанного магазина",
+                "description": "Возвращает информацию о магазине по его идентификатору",
                 "consumes": [
                     "application/json"
                 ],
@@ -222,7 +355,7 @@ const docTemplate = `{
                 "tags": [
                     "Поиск"
                 ],
-                "summary": "Получить посты магазина",
+                "summary": "Получить магазин по ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -235,20 +368,43 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Информация о магазине",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.PostResponse"
-                            }
+                            "$ref": "#/definitions/reqresp.ShopResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID магазина",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Магазин не найден",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
-        "/shops/{id_shop}/products": {
-            "get": {
-                "description": "Возвращает список товаров указанного магазина с возможностью фильтрации",
+        "/user/update-login": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Изменяет логин текущего авторизованного пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -256,54 +412,40 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Поиск"
+                    "Пользователь"
                 ],
-                "summary": "Получить товары магазина",
+                "summary": "Обновить логин пользователя",
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
-                        "description": "ID магазина",
-                        "name": "id_shop",
-                        "in": "path",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Фильтр по названию товара",
-                        "name": "title",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 100000,
-                        "description": "Максимальная цена товара",
-                        "name": "max_cost",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Минимальная цена товара",
-                        "name": "min_cost",
-                        "in": "query"
+                        "description": "Данные для обновления логина",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.UpdateLoginRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешное обновление",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.ProductResponse"
-                            }
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
         "/user/update-password": {
-            "put": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -349,14 +491,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/update-username": {
-            "put": {
+        "/user/user-posts": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Изменяет имя текущего авторизованного пользователя",
+                "description": "Добавляет новый пост в указанный магазин пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -364,9 +506,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Посты"
                 ],
-                "summary": "Обновить имя пользователя",
+                "summary": "Добавить пост в магазин",
                 "parameters": [
                     {
                         "type": "string",
@@ -376,27 +518,25 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Данные для обновления имени",
+                        "description": "Данные нового поста",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateUsernameRequest"
+                            "$ref": "#/definitions/reqresp.AddPostRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Успешное обновление",
+                    "201": {
+                        "description": "Пост успешно добавлен",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     }
                 }
-            }
-        },
-        "/user/user-posts": {
+            },
             "delete": {
                 "security": [
                     {
@@ -411,7 +551,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Посты"
                 ],
                 "summary": "Удалить пост",
                 "parameters": [
@@ -443,63 +583,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-posts/{id_shop}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Добавляет новый пост в указанный магазин пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователь"
-                ],
-                "summary": "Добавить пост в магазин",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "ID магазина",
-                        "name": "id_shop",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные нового поста",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.AddPostRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Пост успешно добавлен",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/user/user-products": {
-            "post": {
+            "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -513,7 +598,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Изделия"
                 ],
                 "summary": "Обновить товар",
                 "parameters": [
@@ -544,6 +629,51 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавляет новый товар в указанный магазин пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Изделия"
+                ],
+                "summary": "Добавить товар в магазин",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные нового товара",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.AddProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Товар успешно добавлен",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -558,7 +688,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Изделия"
                 ],
                 "summary": "Удалить товар",
                 "parameters": [
@@ -590,14 +720,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-products/{id_shop}": {
+        "/user/user-shops": {
             "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Добавляет новый товар в указанный магазин пользователя",
+                "description": "Обновляет данные указанного магазина пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -605,9 +735,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Магазины"
                 ],
-                "summary": "Добавить товар в магазин",
+                "summary": "Обновить магазин",
                 "parameters": [
                     {
                         "type": "string",
@@ -617,69 +747,21 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "ID магазина",
-                        "name": "id_shop",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные нового товара",
+                        "description": "Данные для обновления магазина",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/reqresp.AddProductRequest"
+                            "$ref": "#/definitions/reqresp.UpdateShopRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Товар успешно добавлен",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/user/user-shops": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Возвращает список магазинов текущего авторизованного пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователь"
-                ],
-                "summary": "Получить магазины пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список магазинов пользователя",
+                        "description": "Магазин успешно обновлен",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.ShopResponse"
-                            }
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -698,9 +780,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Магазины"
                 ],
-                "summary": "Добавить магазин пользователя",
+                "summary": "Добавить магазин",
                 "parameters": [
                     {
                         "type": "string",
@@ -743,7 +825,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Магазины"
                 ],
                 "summary": "Удалить магазин",
                 "parameters": [
@@ -775,14 +857,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-shops/{id_shop}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Обновляет данные указанного магазина пользователя",
+        "/user/{id_user}": {
+            "get": {
+                "description": "Возвращает информацию о пользователе по его идентификатору",
                 "consumes": [
                     "application/json"
                 ],
@@ -792,36 +869,40 @@ const docTemplate = `{
                 "tags": [
                     "Пользователь"
                 ],
-                "summary": "Обновить магазин",
+                "summary": "Получить пользователя по ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "format": "uuid",
-                        "description": "ID магазина",
-                        "name": "id_shop",
+                        "description": "ID пользователя",
+                        "name": "id_user",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Данные для обновления магазина",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateShopRequest"
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Магазин успешно обновлен",
+                        "description": "Информация о пользователе",
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID пользователя",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -948,7 +1029,7 @@ const docTemplate = `{
         "reqresp.DeleteShopRequest": {
             "type": "object",
             "properties": {
-                "id": {
+                "id_shop": {
                     "type": "string",
                     "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 }
@@ -1068,7 +1149,8 @@ const docTemplate = `{
         "reqresp.ShopResponse": {
             "type": "object",
             "required": [
-                "description"
+                "description",
+                "userID"
             ],
             "properties": {
                 "description": {
@@ -1076,13 +1158,30 @@ const docTemplate = `{
                     "maxLength": 255,
                     "example": "Лучший магазин сережек"
                 },
-                "id": {
+                "id_shop": {
                     "type": "string",
                     "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 },
                 "title": {
                     "type": "string",
                     "example": "Eco"
+                },
+                "userID": {
+                    "type": "string",
+                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
+                }
+            }
+        },
+        "reqresp.UpdateLoginRequest": {
+            "type": "object",
+            "required": [
+                "login"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "uname"
                 }
             }
         },
@@ -1139,6 +1238,10 @@ const docTemplate = `{
                     "maxLength": 255,
                     "example": "Лучший магазин сережек"
                 },
+                "id_shop": {
+                    "type": "string",
+                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
+                },
                 "title": {
                     "type": "string",
                     "maxLength": 255,
@@ -1159,13 +1262,13 @@ const docTemplate = `{
                 }
             }
         },
-        "reqresp.UpdateUsernameRequest": {
+        "reqresp.UserResponse": {
             "type": "object",
             "required": [
-                "username"
+                "login"
             ],
             "properties": {
-                "username": {
+                "login": {
                     "type": "string",
                     "maxLength": 50,
                     "example": "uname"

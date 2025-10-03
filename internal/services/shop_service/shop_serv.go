@@ -10,12 +10,13 @@ import (
 )
 
 type ShopServ interface {
-	GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error)
-	Add(ctx context.Context, addReq reqresp.AddShopRequest) error
+	// UserID в контексте
+	Add(ctx context.Context, addReq reqresp.AddShopRequest) (*models.Shop, error)
 	Delete(ctx context.Context, shopID uuid.UUID) error
-	Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) error
+	Update(ctx context.Context, updateReq reqresp.UpdateShopRequest) (*models.Shop, error)
 }
 
 var (
-	ErrShopServ = errors.New("ShopServ")
+	ErrShopServ     = errors.New("ShopServ")
+	ErrShopNotFound = errors.New("shop not found")
 )

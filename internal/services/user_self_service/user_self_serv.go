@@ -5,11 +5,15 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	auth "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
+	testobj "github.com/CakeForKit/CraftPlace.git/internal/tests/test_obj"
+	"github.com/google/uuid"
 )
 
 type UserSelfServ interface {
-	ChangeName(ctx context.Context, newName string) error
+	GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error)
+	ChangeLogin(ctx context.Context, newLogin string) error
 	ChangePassword(ctx context.Context, newPassword string) error
 }
 
@@ -27,7 +31,12 @@ type userSelfServ struct {
 	authz auth.AuthZ
 }
 
-func (s *userSelfServ) ChangeName(ctx context.Context, newName string) error {
+func (s *userSelfServ) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	creator := testobj.NewUserMother()
+	return creator.DefaultUserP(userID), nil
+}
+
+func (s *userSelfServ) ChangeLogin(ctx context.Context, newLogin string) error {
 	userID, err := s.authz.UserIDFromContext(ctx)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrUserSelfServ, err)

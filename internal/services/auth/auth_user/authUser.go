@@ -72,7 +72,6 @@ func (s *authUser) RegisterUser(ctx context.Context, rur reqresp.RegisterUserReq
 	}
 	user, err := models.NewUser(
 		uuid.New(),
-		rur.Username,
 		rur.Login,
 		hashedPassword,
 	)

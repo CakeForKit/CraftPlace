@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	"github.com/google/uuid"
 )
 
@@ -15,7 +16,6 @@ const (
 
 type User struct {
 	id             uuid.UUID
-	username       string
 	login          string // unique
 	hashedPassword string
 }
@@ -24,10 +24,9 @@ var (
 	ErrUserValidate = errors.New("model user validate error")
 )
 
-func NewUser(id uuid.UUID, username string, login string, hashedPassword string) (User, error) {
+func NewUser(id uuid.UUID, login string, hashedPassword string) (User, error) {
 	user := User{
 		id:             id,
-		username:       strings.TrimSpace(username),
 		login:          strings.TrimSpace(login),
 		hashedPassword: hashedPassword,
 	}
@@ -39,22 +38,22 @@ func NewUser(id uuid.UUID, username string, login string, hashedPassword string)
 }
 
 func (u *User) validate() error {
-	if u.username == "" || len(u.username) > MaxLenUsername {
-		return fmt.Errorf("%w username", ErrUserValidate)
-	} else if u.login == "" || len(u.login) > MaxLenUserLogin {
-		return fmt.Errorf("%w username", ErrUserValidate)
+	if u.login == "" || len(u.login) > MaxLenUserLogin {
+		return fmt.Errorf("%w login", ErrUserValidate)
 	} else if u.hashedPassword == "" {
 		return fmt.Errorf("%w hashedPassword", ErrUserValidate)
 	}
 	return nil
 }
 
-func (u *User) GetID() uuid.UUID {
-	return u.id
+func (p *User) ToResponse() reqresp.UserResponse {
+	return reqresp.UserResponse{
+		Login: p.GetLogin(),
+	}
 }
 
-func (u *User) GetUsername() string {
-	return u.username
+func (u *User) GetID() uuid.UUID {
+	return u.id
 }
 
 func (u *User) GetLogin() string {

@@ -68,6 +68,8 @@ func main() {
 	_ = searcherRouter
 	authUserRouter := api.NewAuthUserRouter(apiGroup, authUser)
 	_ = authUserRouter
+	// userSelfRouter := api.NewUserSelfRouter(apiGroup)
+	// shopRouter := api.NewShopRouter()
 
 	engine.Run(fmt.Sprintf(":%d", appCnfg_Port))
 }

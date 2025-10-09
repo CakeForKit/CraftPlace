@@ -13,12 +13,13 @@ import (
 
 type UserSelfServ interface {
 	GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error)
-	ChangeLogin(ctx context.Context, newLogin string) error
-	ChangePassword(ctx context.Context, newPassword string) error
+	ChangeLogin(ctx context.Context, userID uuid.UUID, newLogin string) error
+	ChangePassword(ctx context.Context, userID uuid.UUID, newPassword string) error
 }
 
 var (
 	ErrUserSelfServ = errors.New("UserSelfServ")
+	ErrUserIDInCtx  = errors.New("userID != userID in context")
 )
 
 func NewUserSelfServ(authz auth.AuthZ) UserSelfServ {
@@ -36,19 +37,25 @@ func (s *userSelfServ) GetUserByID(ctx context.Context, userID uuid.UUID) (*mode
 	return creator.DefaultUserP(userID), nil
 }
 
-func (s *userSelfServ) ChangeLogin(ctx context.Context, newLogin string) error {
-	userID, err := s.authz.UserIDFromContext(ctx)
+func (s *userSelfServ) ChangeLogin(ctx context.Context, userID uuid.UUID, newLogin string) error {
+	ctxUserID, err := s.authz.UserIDFromContext(ctx)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrUserSelfServ, err)
+	}
+	if ctxUserID != userID {
+		return fmt.Errorf("%w: %w", ErrUserSelfServ, ErrUserIDInCtx)
 	}
 	_ = userID
 	// TODO UserRep.Update
 	return nil
 }
-func (s *userSelfServ) ChangePassword(ctx context.Context, newPassword string) error {
-	userID, err := s.authz.UserIDFromContext(ctx)
+func (s *userSelfServ) ChangePassword(ctx context.Context, userID uuid.UUID, newPassword string) error {
+	ctxUserID, err := s.authz.UserIDFromContext(ctx)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrUserSelfServ, err)
+	}
+	if ctxUserID != userID {
+		return fmt.Errorf("%w: %w", ErrUserSelfServ, ErrUserIDInCtx)
 	}
 	_ = userID
 	// TODO UserRep.Update

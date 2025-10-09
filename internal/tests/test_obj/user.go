@@ -21,7 +21,6 @@ type userMother struct{}
 func (um *userMother) UserWithPswdHash(userID uuid.UUID, hashedPassword string) models.User {
 	user, _ := models.NewUser(
 		userID,
-		"test-user",
 		"test-login"+uuid.New().String(),
 		hashedPassword,
 	)
@@ -31,7 +30,6 @@ func (um *userMother) UserWithPswdHash(userID uuid.UUID, hashedPassword string) 
 func (um *userMother) DefaultUserP(userID uuid.UUID) *models.User {
 	user, _ := models.NewUser(
 		userID,
-		"test-user",
 		"test-login"+uuid.New().String(),
 		"hashed-password",
 	)
@@ -41,7 +39,6 @@ func (um *userMother) DefaultUserP(userID uuid.UUID) *models.User {
 func (um *userMother) UserWithLoginP(userID uuid.UUID, login string) *models.User {
 	user, _ := models.NewUser(
 		userID,
-		"test-user",
 		login,
 		"hashed-password",
 	)

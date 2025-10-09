@@ -38,7 +38,7 @@ func NewProductRouter(
 // @Param Authorization header string true "Bearer токен"
 // @Param request body reqresp.AddProductRequest true "Данные нового товара"
 // @Success 201 {object} map[string]interface{} "Товар успешно добавлен"
-// @Router /user/user-products [post]
+// @Router /user-products [post]
 func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -65,7 +65,7 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param request body reqresp.UpdateProductRequest true "Данные для обновления товара"
 // @Success 200 {object} map[string]interface{} "Товар успешно обновлен"
-// @Router /user/user-products [put]
+// @Router /user-products [put]
 func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -92,7 +92,7 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param request body reqresp.DeleteProductRequest true "Данные для удаления товара"
 // @Success 200 {object} map[string]interface{} "Товар успешно удален"
-// @Router /user/user-products [delete]
+// @Router /user-products [delete]
 func (r *ProductRouter) DeleteProduct(c *gin.Context) {
 	ctx := c.Request.Context()
 

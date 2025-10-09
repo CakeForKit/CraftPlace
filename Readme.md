@@ -52,6 +52,26 @@
 
 api:
 
+Исправления:
+user/id/login
+
+
+пользователь
+! users/:id/login
+users/:id/password
+
+users/:id_user/posts
+
+shops/id_shop/products
+
+shops/id_shop/posts + передавать user id в request
+
+для DELETE POST
+-----------------
+
+
+
+
 Search (no auth)
 GET
 - categories/   (список всех категорий по фильтру имени)

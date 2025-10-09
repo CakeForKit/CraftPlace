@@ -2,6 +2,7 @@ SCRIPTS := ./scripts
 DC_CI := ./deployment/docker-compose.ci.yml
 DC_DEV := ./deployment/docker-compose.dev.yml
 TEST_DB_ENV := ./configs/test_db.env
+DB_ENV := ./configs/db_config.env
 
 .PHONY: run_app
 run_app:
@@ -12,6 +13,14 @@ run_app:
 .PHONY: down_app
 down_app:
 	docker compose -f $(DC_DEV) down -v app_craftplace
+
+.PHONY: run_db
+run_db:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace pg_migrator_craftplace
+
+.PHONY: down_db
+down_db:
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace pg_migrator_craftplace
 
 .PHONY: swagger
 swagger:
@@ -78,7 +87,7 @@ test_build:
 .PHONY: clear_docker
 clear_docker:
 # Остановите все контейнеры
-	docker-compose -f ./deployment/docker-compose.ci.yml down
+# 	docker-compose -f ./deployment/docker-compose.ci.yml down
 # Удалите старые образы
 	docker rmi deployment-test-runner
 # Очистите builder кеш

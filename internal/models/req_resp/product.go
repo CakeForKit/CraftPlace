@@ -1,6 +1,10 @@
 package reqresp
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type AddProductRequest struct {
 	Title       string      `json:"title" binding:"required,max=255" example:"Звезды"`
@@ -26,6 +30,7 @@ type ProductResponse struct {
 	Cost        uint64      `json:"cost" binding:"required,min=0" example:"200"`
 	ShopID      uuid.UUID   `json:"shopID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 	CategoryIDs []uuid.UUID `json:"categoryIDs" binding:"required,dive,uuid"`
+	UpdateTime  time.Time   `json:"updateTime" example:"2023-06-15T14:30:00Z"`
 }
 
 type DeleteProductRequest struct {

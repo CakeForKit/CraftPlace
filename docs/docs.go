@@ -38,7 +38,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Пользователь успешно аутентифицирован"
+                        "description": "Пользователь успешно аутентифицирован",
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.LoginUserResponse"
+                        }
                     },
                     "400": {
                         "description": "Неверные входные параметры"
@@ -341,6 +344,51 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создает новый магазин для текущего авторизованного пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Магазины"
+                ],
+                "summary": "Добавить магазин",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные нового магазина",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.AddShopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Магазин успешно создан",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/shops/{id_shop}": {
@@ -395,16 +443,14 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/user/update-login": {
-            "patch": {
+            },
+            "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Изменяет логин текущего авторизованного пользователя",
+                "description": "Обновляет данные указанного магазина пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -412,9 +458,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Магазины"
                 ],
-                "summary": "Обновить логин пользователя",
+                "summary": "Обновить магазин",
                 "parameters": [
                     {
                         "type": "string",
@@ -424,34 +470,40 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Данные для обновления логина",
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления магазина",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateLoginRequest"
+                            "$ref": "#/definitions/reqresp.UpdateShopRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешное обновление",
+                        "description": "Магазин успешно обновлен",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     }
                 }
-            }
-        },
-        "/user/update-password": {
-            "patch": {
+            },
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Изменяет пароль текущего авторизованного пользователя",
+                "description": "Удаляет магазин пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -459,9 +511,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователь"
+                    "Магазины"
                 ],
-                "summary": "Обновить пароль пользователя",
+                "summary": "Удалить магазин",
                 "parameters": [
                     {
                         "type": "string",
@@ -471,18 +523,17 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Данные для обновления пароля",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateUserPasswordRequest"
-                        }
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешное обновление",
+                        "description": "Магазин успешно удален",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -720,145 +771,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-shops": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Обновляет данные указанного магазина пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Магазины"
-                ],
-                "summary": "Обновить магазин",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные для обновления магазина",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateShopRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Магазин успешно обновлен",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Создает новый магазин для текущего авторизованного пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Магазины"
-                ],
-                "summary": "Добавить магазин",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные нового магазина",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.AddShopRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Магазин успешно создан",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Удаляет магазин пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Магазины"
-                ],
-                "summary": "Удалить магазин",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные для удаления магазина",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.DeleteShopRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Магазин успешно удален",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/user/{id_user}": {
+        "/users/{id_user}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает информацию о пользователе по его идентификатору",
                 "consumes": [
                     "application/json"
@@ -871,6 +790,13 @@ const docTemplate = `{
                 ],
                 "summary": "Получить пользователя по ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "format": "uuid",
@@ -903,6 +829,116 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id_user}/login": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Изменяет логин текущего авторизованного пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пользователь"
+                ],
+                "summary": "Обновить логин пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID пользователя",
+                        "name": "id_user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления логина",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.UpdateLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное обновление",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id_user}/password": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Изменяет пароль текущего авторизованного пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пользователь"
+                ],
+                "summary": "Обновить пароль пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID пользователя",
+                        "name": "id_user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления пароля",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.UpdateUserPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное обновление",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1026,15 +1062,6 @@ const docTemplate = `{
                 }
             }
         },
-        "reqresp.DeleteShopRequest": {
-            "type": "object",
-            "properties": {
-                "id_shop": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
-                }
-            }
-        },
         "reqresp.LoginUserRequest": {
             "type": "object",
             "required": [
@@ -1052,6 +1079,15 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 4,
                     "example": "12345678"
+                }
+            }
+        },
+        "reqresp.LoginUserResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "7249ede8-5083-4bd6-ad09-0b5fa3c5f2de"
                 }
             }
         },
@@ -1117,6 +1153,10 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Eco"
+                },
+                "updateTime": {
+                    "type": "string",
+                    "example": "2023-06-15T14:30:00Z"
                 }
             }
         },
@@ -1124,8 +1164,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "login",
-                "password",
-                "username"
+                "password"
             ],
             "properties": {
                 "login": {
@@ -1138,11 +1177,6 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 4,
                     "example": "12345678"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "uname"
                 }
             }
         },
@@ -1165,6 +1199,10 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Eco"
+                },
+                "updateTime": {
+                    "type": "string",
+                    "example": "2023-06-15T14:30:00Z"
                 },
                 "userID": {
                     "type": "string",
@@ -1238,11 +1276,8 @@ const docTemplate = `{
                     "maxLength": 255,
                     "example": "Лучший магазин сережек"
                 },
-                "id_shop": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
-                },
                 "title": {
+                    "description": "ShopID      string ` + "`" + `json:\"id_shop\" example:\"bb2e8400-e29b-41d4-a716-446655442222\"` + "`" + `",
                     "type": "string",
                     "maxLength": 255,
                     "example": "Лучшие звезды"

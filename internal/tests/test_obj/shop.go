@@ -1,6 +1,8 @@
 package testobj
 
 import (
+	"time"
+
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	"github.com/google/uuid"
 )
@@ -21,6 +23,7 @@ func (um *shopMother) ShopP() *models.Shop {
 		"test-title"+uuid.New().String(),
 		"test-desription",
 		uuid.New(),
+		time.Date(2023, time.October, 1, 15, 30, 0, 0, time.UTC),
 	)
 	return shop
 }

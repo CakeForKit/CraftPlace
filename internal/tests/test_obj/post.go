@@ -21,7 +21,7 @@ func (um *postMother) PostP() *models.Post {
 	post, _ := models.NewPost(
 		uuid.New(),
 		"test-desription",
-		time.Now().UTC(),
+		time.Date(2023, time.October, 1, 15, 30, 0, 0, time.UTC),
 		uuid.New(),
 	)
 	return post

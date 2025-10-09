@@ -13,7 +13,7 @@ type ShopServ interface {
 	// UserID в контексте
 	Add(ctx context.Context, addReq reqresp.AddShopRequest) (*models.Shop, error)
 	Delete(ctx context.Context, shopID uuid.UUID) error
-	Update(ctx context.Context, updateReq reqresp.UpdateShopRequest) (*models.Shop, error)
+	Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) (*models.Shop, error)
 }
 
 var (

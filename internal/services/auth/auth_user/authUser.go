@@ -2,7 +2,6 @@ package authuser
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
@@ -17,11 +16,6 @@ type AuthUser interface {
 	RegisterUser(ctx context.Context, rur reqresp.RegisterUserRequest) error
 	VerifyByToken(token string) (*tokenmaker.Payload, error)
 }
-
-var (
-	ErrDuplicateLoginUser = errors.New("err Duplicate Login User")
-	ErrUserNotFound       = errors.New("err User Not Found")
-)
 
 type authUser struct {
 	tokenMaker tokenmaker.TokenMaker

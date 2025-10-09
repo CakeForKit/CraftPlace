@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	MaxLenUsername  = 50
 	MaxLenUserLogin = 50
 )
 

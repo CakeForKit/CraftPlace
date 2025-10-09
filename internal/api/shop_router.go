@@ -20,10 +20,10 @@ func NewShopRouter(
 	r := ShopRouter{
 		shopServ: shopServ,
 	}
-	gr := router.Group("/user-shops")
+	gr := router.Group("/shops")
 	gr.POST("/", r.AddUserShop)
-	gr.PUT("/", r.UpdateShop)
-	gr.DELETE("/", r.DeleteShop)
+	gr.PUT("/:id_shop", r.UpdateShop)
+	gr.DELETE("/:id_shop", r.DeleteShop)
 	return r
 }
 
@@ -37,7 +37,7 @@ func NewShopRouter(
 // @Param Authorization header string true "Bearer токен"
 // @Param request body reqresp.AddShopRequest true "Данные нового магазина"
 // @Success 201 {object} map[string]interface{} "Магазин успешно создан"
-// @Router /user/user-shops [post]
+// @Router /shops [post]
 func (r *ShopRouter) AddUserShop(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -62,19 +62,24 @@ func (r *ShopRouter) AddUserShop(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.UpdateShopRequest true "Данные для обновления магазина"
 // @Success 200 {object} map[string]interface{} "Магазин успешно обновлен"
-// @Router /user/user-shops [put]
+// @Router /shops/{id_shop} [put]
 func (r *ShopRouter) UpdateShop(c *gin.Context) {
 	ctx := c.Request.Context()
-
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
 	var req reqresp.UpdateShopRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if _, err := r.shopServ.Update(ctx, req); err != nil {
+	if _, err := r.shopServ.Update(ctx, shopID, req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -89,23 +94,17 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
-// @Param request body reqresp.DeleteShopRequest true "Данные для удаления магазина"
+// @Param id_shop path string true "ID магазина" format(uuid)
 // @Success 200 {object} map[string]interface{} "Магазин успешно удален"
-// @Router /user/user-shops [delete]
+// @Router /shops/{id_shop} [delete]
 func (r *ShopRouter) DeleteShop(c *gin.Context) {
 	ctx := c.Request.Context()
-
-	var req reqresp.DeleteShopRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	shopID, err := uuid.Parse(req.ShopID)
+	shopID, err := uuid.Parse(c.Param("id_shop"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
+
 	if err := r.shopServ.Delete(ctx, shopID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

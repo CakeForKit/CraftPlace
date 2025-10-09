@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	auth "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
-	authuser "github.com/CakeForKit/CraftPlace.git/internal/services/auth/auth_user"
 	postservice "github.com/CakeForKit/CraftPlace.git/internal/services/post_service"
 	productservice "github.com/CakeForKit/CraftPlace.git/internal/services/product_service"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
@@ -42,10 +42,10 @@ func NewUserSelfRouter(
 		productServ:  productServ,
 		postServ:     postServ,
 	}
-	gr := router.Group("user")
+	gr := router.Group("/users")
 	gr.GET("/:id_user", r.GetUserByID)
-	gr.PATCH("/update-login", r.UpdateLogin)
-	gr.PATCH("/update-password", r.UpdatePassword)
+	gr.PATCH("/:id_user/login", r.UpdateLogin)
+	gr.PATCH("/:id_user/password", r.UpdatePassword)
 	return r
 }
 
@@ -55,12 +55,14 @@ func NewUserSelfRouter(
 // @Tags Пользователь
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer токен"
 // @Param id_user path string true "ID пользователя" format(uuid)
 // @Success 200 {object} reqresp.UserResponse "Информация о пользователе"
 // @Failure 400 {object} map[string]interface{} "Неверный формат ID пользователя"
 // @Failure 404 {object} map[string]interface{} "Пользователь не найден"
 // @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
-// @Router /user/{id_user} [get]
+// @Router /users/{id_user} [get]
 func (r *UserSelfRouter) GetUserByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	userID, err := uuid.Parse(c.Param("id_user"))
@@ -70,7 +72,7 @@ func (r *UserSelfRouter) GetUserByID(c *gin.Context) {
 	}
 	user, err := r.userSelfServ.GetUserByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, authuser.ErrUserNotFound) {
+		if errors.Is(err, userrep.ErrUserNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -88,11 +90,17 @@ func (r *UserSelfRouter) GetUserByID(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_user path string true "ID пользователя" format(uuid)
 // @Param request body reqresp.UpdateLoginRequest true "Данные для обновления логина"
 // @Success 200 {object} map[string]interface{} "Успешное обновление"
-// @Router /user/update-login [patch]
+// @Router /users/{id_user}/login [patch]
 func (r *UserSelfRouter) UpdateLogin(c *gin.Context) {
 	ctx := c.Request.Context()
+	userID, err := uuid.Parse(c.Param("id_user"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid category ID format"})
+		return
+	}
 
 	var req reqresp.UpdateLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -101,7 +109,7 @@ func (r *UserSelfRouter) UpdateLogin(c *gin.Context) {
 	}
 
 	newLogin := req.Login
-	if err := r.userSelfServ.ChangeLogin(ctx, newLogin); err != nil {
+	if err := r.userSelfServ.ChangeLogin(ctx, userID, newLogin); err != nil {
 		if errors.Is(err, auth.ErrNotAuthZ) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		} else {
@@ -120,11 +128,17 @@ func (r *UserSelfRouter) UpdateLogin(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_user path string true "ID пользователя" format(uuid)
 // @Param request body reqresp.UpdateUserPasswordRequest true "Данные для обновления пароля"
 // @Success 200 {object} map[string]interface{} "Успешное обновление"
-// @Router /user/update-password [patch]
+// @Router /users/{id_user}/password [patch]
 func (r *UserSelfRouter) UpdatePassword(c *gin.Context) {
 	ctx := c.Request.Context()
+	userID, err := uuid.Parse(c.Param("id_user"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid category ID format"})
+		return
+	}
 
 	var req reqresp.UpdateUserPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,7 +147,7 @@ func (r *UserSelfRouter) UpdatePassword(c *gin.Context) {
 	}
 
 	newPassword := req.Password
-	if err := r.userSelfServ.ChangePassword(ctx, newPassword); err != nil {
+	if err := r.userSelfServ.ChangePassword(ctx, userID, newPassword); err != nil {
 		if errors.Is(err, auth.ErrNotAuthZ) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		} else {

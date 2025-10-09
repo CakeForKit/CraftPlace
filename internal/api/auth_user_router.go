@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	authuser "github.com/CakeForKit/CraftPlace.git/internal/services/auth/auth_user"
 	"github.com/gin-gonic/gin"
 )
@@ -44,7 +45,7 @@ func (r *AuthUserRouter) Register(c *gin.Context) {
 	}
 
 	if err := r.authu.RegisterUser(ctx, req); err != nil {
-		if errors.Is(err, authuser.ErrDuplicateLoginUser) {
+		if errors.Is(err, userrep.ErrDuplicateLoginUser) {
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -60,7 +61,7 @@ func (r *AuthUserRouter) Register(c *gin.Context) {
 // @Tags аутентификация
 // @Accept json
 // @Param request body reqresp.LoginUserRequest true "Учетные данные для входа"
-// @Success 200 "Пользователь успешно аутентифицирован"
+// @Success 200 {object} reqresp.LoginUserResponse "Пользователь успешно аутентифицирован"
 // @Failure 400 "Неверные входные параметры"
 // @Failure 401 "Ошибка аутентификации"
 // @Router /auth-user/login [post]
@@ -75,7 +76,7 @@ func (r *AuthUserRouter) Login(c *gin.Context) {
 
 	accessToken, err := r.authu.LoginUser(ctx, req)
 	if err != nil {
-		if errors.Is(err, authuser.ErrUserNotFound) {
+		if errors.Is(err, userrep.ErrUserNotFound) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -10,10 +10,10 @@ import (
 )
 
 type PostServ interface {
-	GetPosts(ctx context.Context) ([]*models.Post, error)
+	GetPostsByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
 	Add(ctx context.Context, addReq reqresp.AddPostRequest) error
 	Delete(ctx context.Context, postID uuid.UUID) error
-	Update(ctx context.Context, updateReq reqresp.UpdatePostRequest) error
+	// Update(ctx context.Context, updateReq reqresp.UpdatePostRequest) error
 }
 
 var (

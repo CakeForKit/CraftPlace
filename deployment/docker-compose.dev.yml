@@ -12,3 +12,45 @@ services:
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
     command: air -c ./cmd/dev/.air.toml
+  
+  postgres_craftplace:
+    container_name: postgres_craftplace
+    # hostname: postgres
+    image: postgres:14.8-alpine3.18
+    env_file:
+      - ../configs/db_config.env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pg-craftplace-vol:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - postgres-craftplace-net
+
+  pg_migrator_craftplace:
+    container_name: pg_migrator_craftplace
+    depends_on:
+      postgres_craftplace:
+        condition: service_healthy  
+    env_file:
+      - ../configs/db_config.env
+    environment:
+      - POSTGRES_HOST=postgres_craftplace
+    build:
+      context: ../migrations
+      dockerfile: Dockerfile
+    networks:
+      - postgres-craftplace-net
+
+volumes:
+  pg-craftplace-vol:
+    driver: local
+
+networks:
+  postgres-craftplace-net:
+    driver: bridge

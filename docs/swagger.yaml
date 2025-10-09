@@ -82,12 +82,6 @@ definitions:
         example: bb2e8400-e29b-41d4-a716-446655442222
         type: string
     type: object
-  reqresp.DeleteShopRequest:
-    properties:
-      id_shop:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
-    type: object
   reqresp.LoginUserRequest:
     properties:
       login:
@@ -102,6 +96,12 @@ definitions:
     required:
     - login
     - password
+    type: object
+  reqresp.LoginUserResponse:
+    properties:
+      access_token:
+        example: 7249ede8-5083-4bd6-ad09-0b5fa3c5f2de
+        type: string
     type: object
   reqresp.PostResponse:
     properties:
@@ -145,6 +145,9 @@ definitions:
       title:
         example: Eco
         type: string
+      updateTime:
+        example: "2023-06-15T14:30:00Z"
+        type: string
     required:
     - categoryIDs
     - cost
@@ -162,14 +165,9 @@ definitions:
         example: "12345678"
         minLength: 4
         type: string
-      username:
-        example: uname
-        maxLength: 50
-        type: string
     required:
     - login
     - password
-    - username
     type: object
   reqresp.ShopResponse:
     properties:
@@ -182,6 +180,9 @@ definitions:
         type: string
       title:
         example: Eco
+        type: string
+      updateTime:
+        example: "2023-06-15T14:30:00Z"
         type: string
       userID:
         example: bb2e8400-e29b-41d4-a716-446655442222
@@ -236,10 +237,8 @@ definitions:
         example: Лучший магазин сережек
         maxLength: 255
         type: string
-      id_shop:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
       title:
+        description: ShopID      string `json:"id_shop" example:"bb2e8400-e29b-41d4-a716-446655442222"`
         example: Лучшие звезды
         maxLength: 255
         type: string
@@ -287,6 +286,8 @@ paths:
       responses:
         "200":
           description: Пользователь успешно аутентифицирован
+          schema:
+            $ref: '#/definitions/reqresp.LoginUserResponse'
         "400":
           description: Неверные входные параметры
         "401":
@@ -493,7 +494,65 @@ paths:
       summary: Получить магазины
       tags:
       - Поиск
+    post:
+      consumes:
+      - application/json
+      description: Создает новый магазин для текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные нового магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddShopRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Магазин успешно создан
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить магазин
+      tags:
+      - Магазины
   /shops/{id_shop}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Магазин успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить магазин
+      tags:
+      - Магазины
     get:
       consumes:
       - application/json
@@ -530,103 +589,41 @@ paths:
       summary: Получить магазин по ID
       tags:
       - Поиск
-  /user/{id_user}:
-    get:
+    put:
       consumes:
       - application/json
-      description: Возвращает информацию о пользователе по его идентификатору
+      description: Обновляет данные указанного магазина пользователя
       parameters:
-      - description: ID пользователя
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
         format: uuid
         in: path
-        name: id_user
+        name: id_shop
         required: true
         type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о пользователе
-          schema:
-            $ref: '#/definitions/reqresp.UserResponse'
-        "400":
-          description: Неверный формат ID пользователя
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Пользователь не найден
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Получить пользователя по ID
-      tags:
-      - Пользователь
-  /user/update-login:
-    patch:
-      consumes:
-      - application/json
-      description: Изменяет логин текущего авторизованного пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Данные для обновления логина
+      - description: Данные для обновления магазина
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/reqresp.UpdateLoginRequest'
+          $ref: '#/definitions/reqresp.UpdateShopRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Успешное обновление
+          description: Магазин успешно обновлен
           schema:
             additionalProperties: true
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Обновить логин пользователя
+      summary: Обновить магазин
       tags:
-      - Пользователь
-  /user/update-password:
-    patch:
-      consumes:
-      - application/json
-      description: Изменяет пароль текущего авторизованного пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Данные для обновления пароля
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reqresp.UpdateUserPasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешное обновление
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Обновить пароль пользователя
-      tags:
-      - Пользователь
+      - Магазины
   /user/user-posts:
     delete:
       consumes:
@@ -774,92 +771,120 @@ paths:
       summary: Обновить товар
       tags:
       - Изделия
-  /user/user-shops:
-    delete:
+  /users/{id_user}:
+    get:
       consumes:
       - application/json
-      description: Удаляет магазин пользователя
+      description: Возвращает информацию о пользователе по его идентификатору
       parameters:
       - description: Bearer токен
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Данные для удаления магазина
-        in: body
-        name: request
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
         required: true
-        schema:
-          $ref: '#/definitions/reqresp.DeleteShopRequest'
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Магазин успешно удален
+          description: Информация о пользователе
+          schema:
+            $ref: '#/definitions/reqresp.UserResponse'
+        "400":
+          description: Неверный формат ID пользователя
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
           schema:
             additionalProperties: true
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Удалить магазин
+      summary: Получить пользователя по ID
       tags:
-      - Магазины
-    post:
+      - Пользователь
+  /users/{id_user}/login:
+    patch:
       consumes:
       - application/json
-      description: Создает новый магазин для текущего авторизованного пользователя
+      description: Изменяет логин текущего авторизованного пользователя
       parameters:
       - description: Bearer токен
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Данные нового магазина
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reqresp.AddShopRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Магазин успешно создан
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Добавить магазин
-      tags:
-      - Магазины
-    put:
-      consumes:
-      - application/json
-      description: Обновляет данные указанного магазина пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
         required: true
         type: string
-      - description: Данные для обновления магазина
+      - description: Данные для обновления логина
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/reqresp.UpdateShopRequest'
+          $ref: '#/definitions/reqresp.UpdateLoginRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Магазин успешно обновлен
+          description: Успешное обновление
           schema:
             additionalProperties: true
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Обновить магазин
+      summary: Обновить логин пользователя
       tags:
-      - Магазины
+      - Пользователь
+  /users/{id_user}/password:
+    patch:
+      consumes:
+      - application/json
+      description: Изменяет пароль текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
+        required: true
+        type: string
+      - description: Данные для обновления пароля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateUserPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить пароль пользователя
+      tags:
+      - Пользователь
 swagger: "2.0"

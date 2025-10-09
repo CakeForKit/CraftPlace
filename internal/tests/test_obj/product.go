@@ -1,6 +1,8 @@
 package testobj
 
 import (
+	"time"
+
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	"github.com/google/uuid"
 )
@@ -23,6 +25,7 @@ func (um *productMother) ProductP() *models.Product {
 		1000,
 		uuid.New(),
 		uuid.UUIDs{uuid.New(), uuid.New()},
+		time.Date(2023, time.October, 1, 15, 30, 0, 0, time.UTC),
 	)
 	return product
 }

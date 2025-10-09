@@ -63,10 +63,11 @@ func main() {
 
 	// ----- Groups -----
 	apiGroup := engine.Group("/api/v1")
+	usersGroup := apiGroup.Group("/")
 	// ------------------
 	searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
 	_ = searcherRouter
-	authUserRouter := api.NewAuthUserRouter(apiGroup, authUser)
+	authUserRouter := api.NewAuthUserRouter(usersGroup, authUser)
 	_ = authUserRouter
 	// userSelfRouter := api.NewUserSelfRouter(apiGroup)
 	// shopRouter := api.NewShopRouter()

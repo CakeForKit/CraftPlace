@@ -3,7 +3,9 @@ package models
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
+	"time"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	"github.com/google/uuid"
@@ -21,13 +23,19 @@ type Product struct {
 	cost        uint64
 	shopID      uuid.UUID
 	categoryIDs uuid.UUIDs
+	updateTime  time.Time
 }
 
 var (
 	ErrProductValidate = errors.New("model Product validate error")
 )
 
-func NewProduct(id uuid.UUID, title string, description string, cost uint64, shopID uuid.UUID, categoryIDs uuid.UUIDs) (*Product, error) {
+func NewProduct(
+	id uuid.UUID, title string,
+	description string, cost uint64,
+	shopID uuid.UUID, categoryIDs uuid.UUIDs,
+	updateTime time.Time,
+) (*Product, error) {
 	p := Product{
 		id:          id,
 		title:       strings.TrimSpace(title),
@@ -35,6 +43,7 @@ func NewProduct(id uuid.UUID, title string, description string, cost uint64, sho
 		cost:        cost,
 		shopID:      shopID,
 		categoryIDs: categoryIDs,
+		updateTime:  updateTime,
 	}
 	if err := p.validate(); err != nil {
 		return nil, err
@@ -61,7 +70,18 @@ func (p *Product) ToResponse() reqresp.ProductResponse {
 		Cost:        p.cost,
 		ShopID:      p.shopID,
 		CategoryIDs: p.categoryIDs,
+		UpdateTime:  p.updateTime,
 	}
+}
+
+func (p *Product) AddCategoryIDs(cids uuid.UUIDs) error {
+	for _, oldID := range p.categoryIDs {
+		if slices.Contains(cids, oldID) {
+			return fmt.Errorf("Event.AddArtworks %w", ErrCategoryValidate)
+		}
+	}
+	p.categoryIDs = append(p.categoryIDs, cids...)
+	return nil
 }
 
 func (p *Product) GetID() uuid.UUID {
@@ -82,4 +102,8 @@ func (p *Product) GetCost() uint64 {
 
 func (p *Product) GetShopID() uuid.UUID {
 	return p.shopID
+}
+
+func (p *Product) GetUpdateTime() time.Time {
+	return p.updateTime
 }

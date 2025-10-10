@@ -52,14 +52,29 @@ func (s *Shop) validate() error {
 	return nil
 }
 
-func (p *Shop) ToResponse() reqresp.ShopResponse {
+func (s *Shop) ToResponse() reqresp.ShopResponse {
 	return reqresp.ShopResponse{
-		ShopID:      p.id.String(),
-		Title:       p.title,
-		Description: p.description,
-		UserID:      p.userID,
-		UpdateTime:  p.updateTime,
+		ShopID:      s.id.String(),
+		Title:       s.title,
+		Description: s.description,
+		UserID:      s.userID,
+		UpdateTime:  s.updateTime,
 	}
+}
+
+func (s *Shop) Update(updateReq *reqresp.UpdateShopRequest) error {
+	copyS := *s
+	if updateReq.Title != "" {
+		copyS.title = updateReq.Title
+	}
+	if updateReq.Description != "" {
+		copyS.description = updateReq.Description
+	}
+	if err := copyS.validate(); err != nil {
+		return err
+	}
+	*s = copyS
+	return nil
 }
 
 func (s *Shop) GetID() uuid.UUID {

@@ -16,7 +16,7 @@ down_app:
 
 .PHONY: run_db
 run_db:
-	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace pg_migrator_craftplace
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace pg_migrator_craftplace -d
 
 .PHONY: down_db
 down_db:

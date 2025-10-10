@@ -13,6 +13,7 @@ import (
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PgCategoryRep struct {

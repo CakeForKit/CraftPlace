@@ -13,6 +13,7 @@ import (
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PgShopRep struct {
@@ -102,7 +103,7 @@ func (pg *PgShopRep) GetByID(ctx context.Context, id uuid.UUID) (*models.Shop, e
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"shops.id", "shops.title", "shops.description",
-		"shops.user_id", "shops.size").
+		"shops.user_id", "shops.update_time").
 		From("shops").
 		Where(sq.Eq{"shops.id": id})
 
@@ -123,7 +124,7 @@ func (pg *PgShopRep) GetByFilter(ctx context.Context, filterOps *reqresp.ShopFil
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"shops.id", "shops.title", "shops.description",
-		"shops.user_id", "shops.size").
+		"shops.user_id", "shops.update_time").
 		From("shops")
 
 	query = pg.addFilterParams(query, filterOps)
@@ -181,16 +182,16 @@ func (pg *PgShopRep) Delete(ctx context.Context, id uuid.UUID) error {
 func (pg *PgShopRep) Update(ctx context.Context,
 	shopID uuid.UUID,
 	funcUpdate func(*models.Shop) (*models.Shop, error),
-) error {
+) (*models.Shop, error) {
 	art, err := pg.GetByID(ctx, shopID)
 	if err != nil {
-		return fmt.Errorf("PgShopRep.Update: %w", err)
+		return nil, fmt.Errorf("PgShopRep.Update: %w", err)
 	}
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	updatedArtwork, err := funcUpdate(art)
 	if err != nil {
-		return fmt.Errorf("PgShopRep.Update: %w (%w)", ErrUpdateShop, err)
+		return nil, fmt.Errorf("PgShopRep.Update: %w (%w)", ErrUpdateShop, err)
 	}
 	query := psql.Update("shops").
 		Set("title", updatedArtwork.GetTitle()).
@@ -199,9 +200,9 @@ func (pg *PgShopRep) Update(ctx context.Context,
 		Where(sq.Eq{"id": shopID})
 	err = pg.execChangeQuery(ctx, query)
 	if err != nil {
-		return fmt.Errorf("PgShopRep.Update %w", err)
+		return nil, fmt.Errorf("PgShopRep.Update %w", err)
 	}
-	return nil
+	return updatedArtwork, nil
 }
 
 func (pg *PgShopRep) Ping(ctx context.Context) error {

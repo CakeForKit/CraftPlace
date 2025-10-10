@@ -6,16 +6,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
 
 	_ "github.com/CakeForKit/CraftPlace.git/docs"
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
+	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
+	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
+	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
+	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
+	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
+	auth "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
 	authuser "github.com/CakeForKit/CraftPlace.git/internal/services/auth/auth_user"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
+	postservice "github.com/CakeForKit/CraftPlace.git/internal/services/post_service"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
+	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -41,15 +50,41 @@ func main() {
 	engine.Use(gin.Recovery())
 
 	// ----- Config ------
-	appCnfg_Port := 8080
+	appCnfg, err := cnfg.LoadAppConfig("./configs/", "app_config", "yaml")
+	if err != nil {
+		panic(fmt.Errorf("cannot load AppConfig: %v", err))
+	}
+	pgCredentials, err := cnfg.LoadPgCredentials("./configs/", "db_config", "env")
+	if err != nil {
+		panic(fmt.Errorf("cannot load PgCredentials: %v", err))
+	}
+	dbConnCnfg, err := cnfg.LoadDatebaseConnConfig("./configs/", "app_config", "yaml")
+	if err != nil {
+		panic(fmt.Errorf("cannot load DatebaseConnConfig: %v", err))
+	}
 	// -------------------
 
 	// для Swagger - НЕ ТРОГАТЬ
-	url := ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", appCnfg_Port))
+	url := ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", appCnfg.Port))
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
+	// ----- Repositories -----
+	ctx := context.Background()
+	userRep, err := userrep.NewPgUserRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	shopRep, err := shoprep.NewPgShopRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	postRep, err := postrep.NewPgPostRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	// --------------------
 	// ----- Services -----
-	tokenMaker, err := tokenmaker.NewTokenMaker("12345678901234567890123456789012")
+	tokenMaker, err := tokenmaker.NewTokenMaker(appCnfg.TokenSymmetricKey)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -57,20 +92,30 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	authUser := authuser.NewAuthUser(tokenMaker, hasher)
+	authUserServ := authuser.NewAuthUser(tokenMaker, hasher, appCnfg, userRep)
+	authz, err := auth.NewAuthZ()
+	if err != nil {
+		panic(err.Error())
+	}
+	shopServ := shopservice.NewShopServ(shopRep, authz)
 	searcherServ := searcher.NewSearcher()
+	postServ := postservice.NewPostServ(postRep, authz, shopRep)
 	// --------------------
 
 	// ----- Groups -----
 	apiGroup := engine.Group("/api/v1")
 	usersGroup := apiGroup.Group("/")
+	usersGroup.Use(middleware.AuthMiddleware(authUserServ, authz))
 	// ------------------
 	searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
 	_ = searcherRouter
-	authUserRouter := api.NewAuthUserRouter(usersGroup, authUser)
+	authUserRouter := api.NewAuthUserRouter(apiGroup, authUserServ)
 	_ = authUserRouter
+	shopRouter := api.NewShopRouter(usersGroup, shopServ)
+	_ = shopRouter
+	postRouter := api.NewPostRouter(usersGroup, postServ)
+	_ = postRouter
 	// userSelfRouter := api.NewUserSelfRouter(apiGroup)
-	// shopRouter := api.NewShopRouter()
 
-	engine.Run(fmt.Sprintf(":%d", appCnfg_Port))
+	engine.Run(fmt.Sprintf(":%d", appCnfg.Port))
 }

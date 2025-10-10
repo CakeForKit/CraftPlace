@@ -12,6 +12,7 @@ import (
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PgUserRep struct {
@@ -26,6 +27,7 @@ func NewPgUserRep(
 	// connStr := "postgres://puser:ppassword@postgres_artworks:5432/artworks"
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 		pgCreds.Username, pgCreds.Password, pgCreds.Host, pgCreds.Port, pgCreds.DbName)
+	fmt.Printf("connStr: %s\n", connStr)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("NewPgUserRep: %w: %w", dberrors.ErrOpenConnect, err)
@@ -67,7 +69,7 @@ func (pg *PgUserRep) parseUsersRows(rows *sql.Rows) ([]*models.User, error) {
 func (pg *PgUserRep) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	baseErr := errors.New("PgUserRep.GetByID")
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err := psql.Select("id", "login", "hashedPassword").
+	query, args, err := psql.Select("id", "login", "hashed_password").
 		From("users").
 		Where(sq.Eq{"id": id}).
 		ToSql()
@@ -95,7 +97,7 @@ func (pg *PgUserRep) GetByID(ctx context.Context, id uuid.UUID) (*models.User, e
 func (pg *PgUserRep) GetByLogin(ctx context.Context, login string) (*models.User, error) {
 	baseErr := errors.New("PgUserRep.GetByLogin")
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err := psql.Select("id", "username", "login", "hashedPassword", "createdAt", "email", "subscribeMail").
+	query, args, err := psql.Select("id", "login", "hashed_password").
 		From("users").
 		Where(sq.Eq{"login": login}).
 		ToSql()
@@ -130,7 +132,7 @@ func (pg *PgUserRep) Add(ctx context.Context, e *models.User) error {
 	}
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query, args, err := psql.Insert("users").
-		Columns("id", "login", "hashedPassword").
+		Columns("id", "login", "hashed_password").
 		Values(e.GetID(), e.GetLogin(), e.GetHashedPassword()).
 		ToSql()
 	if err != nil {

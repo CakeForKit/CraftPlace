@@ -11,8 +11,9 @@ import (
 
 type PostRep interface {
 	GetByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
+	GetByID(ctx context.Context, postID uuid.UUID) (*models.Post, error)
 	Add(ctx context.Context, m *models.Post) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, postID uuid.UUID) error
 	Ping(ctx context.Context) error
 	Close()
 }

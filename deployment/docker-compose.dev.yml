@@ -12,7 +12,9 @@ services:
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
     command: air -c ./cmd/dev/.air.toml
-  
+    networks:
+      - postgres-craftplace-net
+      
   postgres_craftplace:
     container_name: postgres_craftplace
     # hostname: postgres

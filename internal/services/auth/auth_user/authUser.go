@@ -2,10 +2,11 @@ package authuser
 
 import (
 	"context"
-	"time"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
 	"github.com/google/uuid"
@@ -20,38 +21,35 @@ type AuthUser interface {
 type authUser struct {
 	tokenMaker tokenmaker.TokenMaker
 	hasher     hasher.Hasher
-	// config     cnfg.AppConfig
-	// userrep    userrep.UserRep
-
+	config     *cnfg.AppConfig
+	userrep    userrep.UserRep
 }
 
-// config cnfg.AppConfig, urep userrep.UserRep,
-func NewAuthUser(tokenMaker tokenmaker.TokenMaker, hasher hasher.Hasher) AuthUser {
+func NewAuthUser(tokenMaker tokenmaker.TokenMaker, hasher hasher.Hasher, config *cnfg.AppConfig, urep userrep.UserRep) AuthUser {
 	server := &authUser{
 		tokenMaker: tokenMaker,
 		hasher:     hasher,
-		// config:     config,
-		// userrep:    urep,
+		config:     config,
+		userrep:    urep,
 	}
 	return server
 }
 
 func (s *authUser) LoginUser(ctx context.Context, lur reqresp.LoginUserRequest) (string, error) {
-	// user, err := s.userrep.GetByLogin(ctx, lur.Login)
-	// if err != nil {
-	// 	return "", err
-	// }
+	user, err := s.userrep.GetByLogin(ctx, lur.Login)
+	if err != nil {
+		return "", err
+	}
 
-	// err = s.hasher.CheckPassword(lur.Password, user.GetHashedPassword())
-	// if err != nil {
-	// 	return "", err
-	// }
-	userID := uuid.New()
-	s_config_AccessTokenDuration := time.Hour
+	err = s.hasher.CheckPassword(lur.Password, user.GetHashedPassword())
+	if err != nil {
+		return "", err
+	}
+	userID := user.GetID()
 	accessToken, err := s.tokenMaker.CreateToken(
 		userID,
 		tokenmaker.UserRole,
-		s_config_AccessTokenDuration,
+		s.config.AccessTokenDuration,
 	)
 	if err != nil {
 		return "", err
@@ -72,9 +70,8 @@ func (s *authUser) RegisterUser(ctx context.Context, rur reqresp.RegisterUserReq
 	if err != nil {
 		return nil
 	}
-	_ = user
-	// err = s.userrep.Add(ctx, &user)
-	return nil
+	err = s.userrep.Add(ctx, &user)
+	return err
 }
 
 func (s *authUser) VerifyByToken(tokenStr string) (*tokenmaker.Payload, error) {

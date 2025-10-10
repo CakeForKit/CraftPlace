@@ -15,7 +15,7 @@ type ShopRep interface {
 
 	Add(ctx context.Context, m *models.Shop) error
 	Delete(ctx context.Context, id uuid.UUID) error
-	Update(ctx context.Context, id uuid.UUID, funcUpdate func(*models.Shop) (*models.Shop, error)) error
+	Update(ctx context.Context, id uuid.UUID, funcUpdate func(*models.Shop) (*models.Shop, error)) (*models.Shop, error)
 	Ping(ctx context.Context) error
 	Close()
 }

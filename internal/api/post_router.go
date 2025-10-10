@@ -55,7 +55,7 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 		Description: req.Description,
 		ShopID:      shopID,
 	}
-	if err := r.postServ.Add(ctx, dataToAdd); err != nil {
+	if _, err := r.postServ.Add(ctx, dataToAdd); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

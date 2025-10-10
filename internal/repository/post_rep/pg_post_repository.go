@@ -13,6 +13,7 @@ import (
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PgPostRep struct {
@@ -98,6 +99,27 @@ func (pg *PgPostRep) execSelectQuery(ctx context.Context, query sq.SelectBuilder
 		return nil, fmt.Errorf("%w", err)
 	}
 	return arts, nil
+}
+
+func (pg *PgPostRep) GetByID(ctx context.Context, postID uuid.UUID) (*models.Post, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query := psql.Select(
+		"posts.id", "posts.description",
+		"posts.publication_time", "posts.shop_id").
+		From("posts").
+		Where(sq.Eq{"posts.id": postID})
+
+	arts, err := pg.execSelectQuery(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("PgPostRep.GetByID: %w", err)
+	}
+
+	if len(arts) == 0 {
+		return nil, ErrPostNotFound
+	} else if len(arts) > 1 {
+		return nil, fmt.Errorf("PgPostRep.GetByID: %w", dberrors.ErrExpectedOne)
+	}
+	return arts[0], nil
 }
 
 func (pg *PgPostRep) GetByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {

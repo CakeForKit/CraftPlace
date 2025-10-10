@@ -27,6 +27,7 @@ import (
 	productservice "github.com/CakeForKit/CraftPlace.git/internal/services/product_service"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
 	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
+	userselfservice "github.com/CakeForKit/CraftPlace.git/internal/services/user_self_service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -107,6 +108,7 @@ func main() {
 	searcherServ := searcher.NewSearcher()
 	postServ := postservice.NewPostServ(postRep, authz, shopRep)
 	productServ := productservice.NewProductServ(productRep, authz, shopRep)
+	userSelfServ := userselfservice.NewUserSelfServ(authz, userRep, hasher)
 	// --------------------
 
 	// ----- Groups -----
@@ -124,7 +126,7 @@ func main() {
 	_ = postRouter
 	productRouter := api.NewProductRouter(usersGroup, productServ)
 	_ = productRouter
-	// userSelfRouter := api.NewUserSelfRouter(apiGroup)
-
+	userSelfRouter := api.NewUserSelfRouter(usersGroup, userSelfServ)
+	_ = userSelfRouter
 	engine.Run(fmt.Sprintf(":%d", appCnfg.Port))
 }

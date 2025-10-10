@@ -194,7 +194,7 @@ func (pg *PgUserRep) Update(ctx context.Context,
 	}
 	query, args, err := psql.Update("users").
 		Set("login", updatedUser.GetLogin()).
-		Set("hashedPassword", updatedUser.GetHashedPassword()).
+		Set("hashed_password", updatedUser.GetHashedPassword()).
 		Where(sq.Eq{"id": id}).ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w: %w", baseErr, dberrors.ErrQueryBuilds, err)

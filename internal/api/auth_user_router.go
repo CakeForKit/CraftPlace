@@ -31,9 +31,9 @@ func NewAuthUserRouter(router *gin.RouterGroup, authu authuser.AuthUser) AuthUse
 // @Accept json
 // @Param request body reqresp.RegisterUserRequest true "Данные для регистрации"
 // @Success 200 "Пользователь зарегистрирован"
-// @Failure 400 "Неверные входные параметры"
-// @Failure 401 "Ошибка аутентификации"
-// @Failure 409 "Попытка повторной регистрации"
+// @Failure 400 {object} ErrorResponse  "Неверные входные параметры"
+// @Failure 401 {object} ErrorResponse  "Ошибка аутентификации"
+// @Failure 409 {object} ErrorResponse  "Попытка повторной регистрации"
 // @Router /auth-user/register [post]
 func (r *AuthUserRouter) Register(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -62,8 +62,8 @@ func (r *AuthUserRouter) Register(c *gin.Context) {
 // @Accept json
 // @Param request body reqresp.LoginUserRequest true "Учетные данные для входа"
 // @Success 200 {object} reqresp.LoginUserResponse "Пользователь успешно аутентифицирован"
-// @Failure 400 "Неверные входные параметры"
-// @Failure 401 "Ошибка аутентификации"
+// @Failure 400 {object} ErrorResponse  "Неверные входные параметры"
+// @Failure 401 {object} ErrorResponse  "Ошибка аутентификации"
 // @Router /auth-user/login [post]
 func (r *AuthUserRouter) Login(c *gin.Context) {
 	ctx := c.Request.Context()

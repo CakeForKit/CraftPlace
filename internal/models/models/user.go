@@ -45,10 +45,30 @@ func (u *User) validate() error {
 	return nil
 }
 
-func (p *User) ToResponse() reqresp.UserResponse {
+func (u *User) ToResponse() reqresp.UserResponse {
 	return reqresp.UserResponse{
-		Login: p.GetLogin(),
+		Login: u.GetLogin(),
 	}
+}
+
+func (u *User) UpdateLogin(newLogin string) error {
+	copyU := *u
+	copyU.login = newLogin
+	if err := copyU.validate(); err != nil {
+		return err
+	}
+	*u = copyU
+	return nil
+}
+
+func (u *User) UpdatePassword(newHashedPassword string) error {
+	copyU := *u
+	copyU.hashedPassword = newHashedPassword
+	if err := copyU.validate(); err != nil {
+		return err
+	}
+	*u = copyU
+	return nil
 }
 
 func (u *User) GetID() uuid.UUID {

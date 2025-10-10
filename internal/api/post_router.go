@@ -37,10 +37,10 @@ func NewPostRouter(
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddPostRequest true "Данные нового поста"
-// @Success 201 {object} map[string]interface{} "Пост успешно добавлен"
-// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
-// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 201 "Пост успешно добавлен"
+// @Failure 400 {object} ErrorResponse  "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
+// @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/posts [post]
 func (r *PostRouter) AddPostToShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -80,11 +80,11 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_post path string true "ID поста" format(uuid)
-// @Success 200 {object} map[string]interface{} "Пост успешно удален"
-// @Failure 400 {object} map[string]interface{} "Неверный формат ID, неверный магазин"
-// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
-// @Failure 404 {object} map[string]interface{} "Пост не найден"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 200 "Пост успешно удален"
+// @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
+// @Failure 404 {object} ErrorResponse  "Пост не найден"
+// @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/posts/{id_post} [delete]
 func (r *PostRouter) DeletePost(c *gin.Context) {
 	ctx := c.Request.Context()

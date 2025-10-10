@@ -1,5 +1,11 @@
 basePath: /api/v1
 definitions:
+  api.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
   reqresp.AddPostRequest:
     properties:
       description:
@@ -269,8 +275,12 @@ paths:
             $ref: '#/definitions/reqresp.LoginUserResponse'
         "400":
           description: Неверные входные параметры
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Ошибка аутентификации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Вход пользователя
       tags:
       - аутентификация
@@ -291,10 +301,16 @@ paths:
           description: Пользователь зарегистрирован
         "400":
           description: Неверные входные параметры
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Ошибка аутентификации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "409":
           description: Попытка повторной регистрации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Регистрация пользователя
       tags:
       - аутентификация
@@ -546,9 +562,18 @@ paths:
       responses:
         "201":
           description: Магазин успешно создан
+        "400":
+          description: Неверные данные запроса, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Добавить магазин
@@ -576,9 +601,22 @@ paths:
       responses:
         "200":
           description: Магазин успешно удален
+        "400":
+          description: Неверный формат ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Удалить магазин
@@ -647,9 +685,22 @@ paths:
       responses:
         "200":
           description: Магазин успешно обновлен
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Обновить магазин
@@ -683,24 +734,18 @@ paths:
       responses:
         "201":
           description: Пост успешно добавлен
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Неверный формат данных или ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Неавторизованный доступ
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Добавить пост в магазин
@@ -734,29 +779,22 @@ paths:
       responses:
         "200":
           description: Пост успешно удален
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Неверный формат ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Неавторизованный доступ
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Пост не найден
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Удалить пост
@@ -790,24 +828,18 @@ paths:
       responses:
         "201":
           description: Товар успешно добавлен
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Неверный формат данных или ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Неавторизованный доступ
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Добавить товар в магазин
@@ -841,29 +873,22 @@ paths:
       responses:
         "200":
           description: Товар успешно удален
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Неверный формат ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Неавторизованный доступ
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Товар не найден
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Удалить товар
@@ -902,29 +927,22 @@ paths:
       responses:
         "200":
           description: Товар успешно обновлен
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Неверный формат данных или ID, неверный магазин
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "401":
           description: Неавторизованный доступ
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Товар не найден
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Обновить товар
@@ -955,20 +973,21 @@ paths:
           schema:
             $ref: '#/definitions/reqresp.UserResponse'
         "400":
-          description: Неверный формат ID пользователя
+          description: Неверный формат ID пользователя, или неверный ID пользователя
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Получить пользователя по ID
@@ -1002,9 +1021,26 @@ paths:
       responses:
         "200":
           description: Успешное обновление
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный пользователь
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Логин уже занят
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Обновить логин пользователя
@@ -1038,9 +1074,22 @@ paths:
       responses:
         "200":
           description: Успешное обновление
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный пользователь
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Обновить пароль пользователя

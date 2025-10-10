@@ -21,8 +21,8 @@ type ShopServ interface {
 }
 
 var (
-	ErrShopServ     = errors.New("ShopServ")
-	ErrShopNotFound = errors.New("shop not found")
+	ErrShopServ  = errors.New("ShopServ")
+	ErrWrongShop = errors.New("shop does not belong to the user")
 )
 
 type shopServ struct {
@@ -35,6 +35,22 @@ func NewShopServ(shopRep shoprep.ShopRep, authz auth.AuthZ) ShopServ {
 		shopRep: shopRep,
 		authz:   authz,
 	}
+}
+
+func (s *shopServ) checkUserRights(ctx context.Context, shopID uuid.UUID) error {
+	baseErr := fmt.Errorf("checkUserRights %w", ErrWrongShop)
+	userID, err := s.authz.UserIDFromContext(ctx)
+	if err != nil {
+		return fmt.Errorf("%w: %w", baseErr, err)
+	}
+	shop, err := s.shopRep.GetByID(ctx, shopID)
+	if err != nil {
+		return fmt.Errorf("%w: %w", baseErr, err)
+	}
+	if shop.GetUserID() != userID {
+		return fmt.Errorf("%w: %w", baseErr, auth.ErrHasNoRights)
+	}
+	return nil
 }
 
 func (s *shopServ) Add(ctx context.Context, addReq reqresp.AddShopRequest) (*models.Shop, error) {
@@ -62,19 +78,10 @@ func (s *shopServ) Add(ctx context.Context, addReq reqresp.AddShopRequest) (*mod
 
 func (s *shopServ) Delete(ctx context.Context, shopID uuid.UUID) error {
 	baseErr := fmt.Errorf("%w Delete", ErrShopServ)
-	userID, err := s.authz.UserIDFromContext(ctx)
-	if err != nil {
+	if err := s.checkUserRights(ctx, shopID); err != nil {
 		return fmt.Errorf("%w: %w", baseErr, err)
 	}
-	delShop, err := s.shopRep.GetByID(ctx, shopID)
-	if err != nil {
-		return fmt.Errorf("%w: %w", baseErr, err)
-	}
-	if delShop.GetUserID() != userID {
-		return fmt.Errorf("%w: %w", baseErr, auth.ErrHasNoRights)
-	}
-
-	if err = s.shopRep.Delete(ctx, shopID); err != nil {
+	if err := s.shopRep.Delete(ctx, shopID); err != nil {
 		return fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return nil
@@ -82,21 +89,12 @@ func (s *shopServ) Delete(ctx context.Context, shopID uuid.UUID) error {
 
 func (s *shopServ) Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) (*models.Shop, error) {
 	baseErr := fmt.Errorf("%w Update", ErrShopServ)
-	userID, err := s.authz.UserIDFromContext(ctx)
-	if err != nil {
+	if err := s.checkUserRights(ctx, shopID); err != nil {
 		return nil, fmt.Errorf("%w: %w", baseErr, err)
 	}
-	shop, err := s.shopRep.GetByID(ctx, shopID)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", baseErr, err)
-	}
-	if shop.GetUserID() != userID {
-		return nil, fmt.Errorf("%w: %w", baseErr, auth.ErrHasNoRights)
-	}
-
-	updated, err := s.shopRep.Update(ctx, shopID, func(shop *models.Shop) (*models.Shop, error) {
-		err := shop.Update(&updateReq)
-		return shop, err
+	updated, err := s.shopRep.Update(ctx, shopID, func(sh *models.Shop) (*models.Shop, error) {
+		err := sh.Update(&updateReq)
+		return sh, err
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", baseErr, err)

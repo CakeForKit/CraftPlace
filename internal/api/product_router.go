@@ -40,10 +40,10 @@ func NewProductRouter(
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddProductRequest true "Данные нового товара"
-// @Success 201 {object} map[string]interface{} "Товар успешно добавлен"
-// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
-// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 201 "Товар успешно добавлен"
+// @Failure 400 {object} ErrorResponse  "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
+// @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products [post]
 func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -89,11 +89,11 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_product path string true "ID изделия" format(uuid)
 // @Param request body reqresp.UpdateProductRequest true "Данные для обновления товара"
-// @Success 200 {object} map[string]interface{} "Товар успешно обновлен"
-// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
-// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
-// @Failure 404 {object} map[string]interface{} "Товар не найден"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 200 "Товар успешно обновлен"
+// @Failure 400 {object} ErrorResponse  "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
+// @Failure 404 {object} ErrorResponse  "Товар не найден"
+// @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products/{id_product} [put]
 func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -142,11 +142,11 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_product path string true "ID изделия" format(uuid)
-// @Success 200 {object} map[string]interface{} "Товар успешно удален"
-// @Failure 400 {object} map[string]interface{} "Неверный формат ID, неверный магазин"
-// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
-// @Failure 404 {object} map[string]interface{} "Товар не найден"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 200 "Товар успешно удален"
+// @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
+// @Failure 404 {object} ErrorResponse  "Товар не найден"
+// @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products/{id_product} [delete]
 func (r *ProductRouter) DeleteProduct(c *gin.Context) {
 	ctx := c.Request.Context()

@@ -6,3 +6,4 @@
 SELECT * FROM shops;
 SELECT * FROM products;
 SELECT * FROM posts;
+SELECT * FROM users;

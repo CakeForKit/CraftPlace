@@ -114,9 +114,9 @@ func (s *productServ) Update(ctx context.Context, productID uuid.UUID, updateReq
 		return nil, fmt.Errorf("%w:%w", baseErr, ErrWrongShop)
 	}
 
-	updated, err := s.productRep.Update(ctx, productID, func(*models.Product) (*models.Product, error) {
-		err := product.Update(&updateReq)
-		return product, err
+	updated, err := s.productRep.Update(ctx, productID, func(p *models.Product) (*models.Product, error) {
+		err := p.Update(&updateReq)
+		return p, err
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", baseErr, err)

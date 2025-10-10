@@ -1,9 +1,11 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,7 +38,10 @@ func NewShopRouter(
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
 // @Param request body reqresp.AddShopRequest true "Данные нового магазина"
-// @Success 201 {object} map[string]interface{} "Магазин успешно создан"
+// @Success 201 "Магазин успешно создан"
+// @Failure 400 {object} ErrorResponse "Неверные данные запроса, неверный магазин"
+// @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /shops [post]
 func (r *ShopRouter) AddUserShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -48,7 +53,11 @@ func (r *ShopRouter) AddUserShop(c *gin.Context) {
 	}
 	_, err := r.shopServ.Add(ctx, req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, shopservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
@@ -64,7 +73,11 @@ func (r *ShopRouter) AddUserShop(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.UpdateShopRequest true "Данные для обновления магазина"
-// @Success 200 {object} map[string]interface{} "Магазин успешно обновлен"
+// @Success 200 "Магазин успешно обновлен"
+// @Failure 400 {object} ErrorResponse "Неверный формат ID, неверные данные запроса, неверный магазин"
+// @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
+// @Failure 404 {object} ErrorResponse "Магазин не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop} [put]
 func (r *ShopRouter) UpdateShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -80,7 +93,13 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 	}
 
 	if _, err := r.shopServ.Update(ctx, shopID, req); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, shoprep.ErrShopNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else if errors.Is(err, shopservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})
@@ -95,7 +114,11 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
-// @Success 200 {object} map[string]interface{} "Магазин успешно удален"
+// @Success 200 "Магазин успешно удален"
+// @Failure 400 {object} ErrorResponse "Неверный формат ID, неверный магазин"
+// @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
+// @Failure 404 {object} ErrorResponse "Магазин не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop} [delete]
 func (r *ShopRouter) DeleteShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -106,7 +129,13 @@ func (r *ShopRouter) DeleteShop(c *gin.Context) {
 	}
 
 	if err := r.shopServ.Delete(ctx, shopID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, shoprep.ErrShopNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else if errors.Is(err, shopservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})

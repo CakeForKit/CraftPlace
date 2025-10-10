@@ -11,8 +11,10 @@ import (
 
 type ProductRep interface {
 	GetByFilter(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error)
+	GetByID(ctx context.Context, productID uuid.UUID) (*models.Product, error)
 	Add(ctx context.Context, m *models.Product) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, productID uuid.UUID, funcUpdate func(*models.Product) (*models.Product, error)) (*models.Product, error)
 	Ping(ctx context.Context) error
 	Close()
 }

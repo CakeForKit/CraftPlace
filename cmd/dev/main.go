@@ -16,6 +16,7 @@ import (
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
 	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
+	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	auth "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
@@ -23,6 +24,7 @@ import (
 	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
 	postservice "github.com/CakeForKit/CraftPlace.git/internal/services/post_service"
+	productservice "github.com/CakeForKit/CraftPlace.git/internal/services/product_service"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
 	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
 	"github.com/gin-contrib/cors"
@@ -82,6 +84,10 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	productRep, err := productrep.NewPgProductRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
 	// --------------------
 	// ----- Services -----
 	tokenMaker, err := tokenmaker.NewTokenMaker(appCnfg.TokenSymmetricKey)
@@ -100,6 +106,7 @@ func main() {
 	shopServ := shopservice.NewShopServ(shopRep, authz)
 	searcherServ := searcher.NewSearcher()
 	postServ := postservice.NewPostServ(postRep, authz, shopRep)
+	productServ := productservice.NewProductServ(productRep, authz, shopRep)
 	// --------------------
 
 	// ----- Groups -----
@@ -115,6 +122,8 @@ func main() {
 	_ = shopRouter
 	postRouter := api.NewPostRouter(usersGroup, postServ)
 	_ = postRouter
+	productRouter := api.NewProductRouter(usersGroup, productServ)
+	_ = productRouter
 	// userSelfRouter := api.NewUserSelfRouter(apiGroup)
 
 	engine.Run(fmt.Sprintf(":%d", appCnfg.Port))

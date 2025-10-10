@@ -16,11 +16,12 @@ import (
 type PostServ interface {
 	// GetPostsByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
 	Add(ctx context.Context, addReq AddPostData) (*models.Post, error)
-	Delete(ctx context.Context, postID uuid.UUID) error
+	Delete(ctx context.Context, postID uuid.UUID, shopID uuid.UUID) error
 }
 
 var (
-	ErrPostServ = errors.New("PostServ")
+	ErrPostServ  = errors.New("PostServ")
+	ErrWrongShop = errors.New("product does not belong to the shop")
 )
 
 type AddPostData struct {
@@ -43,7 +44,7 @@ func NewPostServ(postRep postrep.PostRep, authz auth.AuthZ, shopRep shoprep.Shop
 }
 
 func (s *postServ) checkUserRights(ctx context.Context, shopID uuid.UUID) error {
-	baseErr := fmt.Errorf("checkUserRights")
+	baseErr := fmt.Errorf("checkUserRights %w", ErrWrongShop)
 	userID, err := s.authz.UserIDFromContext(ctx)
 	if err != nil {
 		return fmt.Errorf("%w: %w", baseErr, err)
@@ -77,8 +78,8 @@ func (s *postServ) Add(ctx context.Context, addReq AddPostData) (*models.Post, e
 	return newPost, nil
 }
 
-func (s *postServ) Delete(ctx context.Context, postID uuid.UUID) error {
-	baseErr := fmt.Errorf("%w Add", ErrPostServ)
+func (s *postServ) Delete(ctx context.Context, postID uuid.UUID, shopID uuid.UUID) error {
+	baseErr := fmt.Errorf("%w Delete", ErrPostServ)
 	post, err := s.postRep.GetByID(ctx, postID)
 	if err != nil {
 		return fmt.Errorf("%w: %w", baseErr, err)
@@ -86,6 +87,9 @@ func (s *postServ) Delete(ctx context.Context, postID uuid.UUID) error {
 	err = s.checkUserRights(ctx, post.GetShopID())
 	if err != nil {
 		return fmt.Errorf("%w: %w", baseErr, err)
+	}
+	if post.GetShopID() != shopID {
+		return ErrWrongShop
 	}
 	err = s.postRep.Delete(ctx, postID)
 	if err != nil {

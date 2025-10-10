@@ -118,6 +118,36 @@ func (pg *PgProductRep) execSelectQuery(ctx context.Context, query sq.SelectBuil
 	return arts, nil
 }
 
+func (pg *PgProductRep) GetByID(ctx context.Context, productID uuid.UUID) (*models.Product, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query := psql.Select(
+		"products.id", "products.title", "products.description",
+		"products.cost", "products.shop_id", "products.update_time").
+		From("products").
+		Where(sq.Eq{"products.id": productID})
+
+	products, err := pg.execSelectQuery(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("PgProductRep.GetByID: %w", err)
+	}
+
+	if len(products) == 0 {
+		return nil, ErrProductNotFound
+	} else if len(products) > 1 {
+		return nil, fmt.Errorf("PgProductRep.GetByID: %w", dberrors.ErrExpectedOne)
+	}
+	resProduct := products[0]
+	categoryIDs, err := pg.getCategoryIDs(ctx, resProduct.GetID())
+	if err != nil {
+		return nil, fmt.Errorf("PgProductRep.GetByID: %w", err)
+	}
+	err = resProduct.AddCategoryIDs(categoryIDs)
+	if err != nil {
+		return nil, fmt.Errorf("PgProductRep.GetByID: %w", err)
+	}
+	return resProduct, nil
+}
+
 func (pg *PgProductRep) getCategoryIDs(ctx context.Context, productID uuid.UUID) (uuid.UUIDs, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query, args, err := psql.Select("category_id").
@@ -180,13 +210,10 @@ func (pg *PgProductRep) joinCategoryIDsToProducts(ctx context.Context, products 
 
 func (pg *PgProductRep) GetByFilter(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-
 	query := psql.Select(
-		"products.id", "products.description",
-		"products.publication_time", "products.shop_id",
-		"shops.title", "shops.description", "shops.user_id", "shops.update_time").
-		From("products").
-		Join("shops ON products.shop_id = shops.id")
+		"products.id", "products.title", "products.description",
+		"products.cost", "products.shop_id", "products.update_time").
+		From("products")
 
 	query = pg.addFilterParams(query, filterOps)
 	query = pg.addSortParams(query)
@@ -243,6 +270,34 @@ func (pg *PgProductRep) Delete(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("PgProductRep.Delete: %w", err)
 	}
 	return nil
+}
+
+func (pg *PgProductRep) Update(ctx context.Context,
+	productID uuid.UUID,
+	funcUpdate func(*models.Product) (*models.Product, error),
+) (*models.Product, error) {
+	baseErr := fmt.Errorf("PgProductRep Update")
+	p, err := pg.GetByID(ctx, productID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
+	}
+
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	updatedProduct, err := funcUpdate(p)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w (%w)", baseErr, ErrUpdateProduct, err)
+	}
+	query := psql.Update("products").
+		Set("title", updatedProduct.GetTitle()).
+		Set("description", updatedProduct.GetDescription()).
+		Set("cost", updatedProduct.GetCost()).
+		Set("update_time", updatedProduct.GetUpdateTime()).
+		Where(sq.Eq{"id": productID})
+	err = pg.execChangeQuery(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%w %w", baseErr, err)
+	}
+	return updatedProduct, nil
 }
 
 func (pg *PgProductRep) Ping(ctx context.Context) error {

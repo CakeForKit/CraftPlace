@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
@@ -37,6 +38,9 @@ func NewPostRouter(
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddPostRequest true "Данные нового поста"
 // @Success 201 {object} map[string]interface{} "Пост успешно добавлен"
+// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
+// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/posts [post]
 func (r *PostRouter) AddPostToShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -56,7 +60,11 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 		ShopID:      shopID,
 	}
 	if _, err := r.postServ.Add(ctx, dataToAdd); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, postservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
@@ -73,17 +81,30 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_post path string true "ID поста" format(uuid)
 // @Success 200 {object} map[string]interface{} "Пост успешно удален"
+// @Failure 400 {object} map[string]interface{} "Неверный формат ID, неверный магазин"
+// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
+// @Failure 404 {object} map[string]interface{} "Пост не найден"
+// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/posts/{id_post} [delete]
 func (r *PostRouter) DeletePost(c *gin.Context) {
 	ctx := c.Request.Context()
 
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
 	postID, err := uuid.Parse(c.Param("id_post"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
-	if err := r.postServ.Delete(ctx, postID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := r.postServ.Delete(ctx, postID, shopID); err != nil {
+		if errors.Is(err, postservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})

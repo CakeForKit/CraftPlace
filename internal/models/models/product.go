@@ -30,6 +30,22 @@ var (
 	ErrProductValidate = errors.New("model Product validate error")
 )
 
+type AddProductData struct {
+	Title       string      `json:"title" binding:"required,max=255" example:"Звезды"`
+	Description string      `json:"description" binding:"required,max=255" example:"Магазин сережек"`
+	Cost        uint64      `json:"cost" binding:"required,min=0" example:"100"`
+	ShopID      uuid.UUID   `json:"shopID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
+	CategoryIDs []uuid.UUID `json:"categoryIDs" binding:"required,dive,uuid"`
+}
+
+type UpdateProductData struct {
+	Title       string      `json:"title" binding:"required,max=255" example:"Лучшие звезды"`
+	Description string      `json:"description" binding:"required,max=255" example:"Лучший магазин сережек"`
+	Cost        uint64      `json:"cost" binding:"required,min=0" example:"200"`
+	ShopID      uuid.UUID   `json:"shopID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
+	CategoryIDs []uuid.UUID `json:"categoryIDs" binding:"required,dive,uuid"`
+}
+
 func NewProduct(
 	id uuid.UUID, title string,
 	description string, cost uint64,
@@ -72,6 +88,23 @@ func (p *Product) ToResponse() reqresp.ProductResponse {
 		CategoryIDs: p.categoryIDs,
 		UpdateTime:  p.updateTime,
 	}
+}
+
+func (p *Product) Update(updateReq *UpdateProductData) error {
+	copyP := *p
+	if updateReq.Title != "" {
+		copyP.title = updateReq.Title
+	}
+	if updateReq.Description != "" {
+		copyP.description = updateReq.Description
+	}
+	copyP.cost = updateReq.Cost
+	copyP.updateTime = time.Now().UTC()
+	if err := copyP.validate(); err != nil {
+		return err
+	}
+	*p = copyP
+	return nil
 }
 
 func (p *Product) AddCategoryIDs(cids uuid.UUIDs) error {

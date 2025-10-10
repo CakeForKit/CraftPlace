@@ -686,6 +686,21 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
       security:
       - ApiKeyAuth: []
       summary: Добавить пост в магазин
@@ -719,6 +734,26 @@ paths:
       responses:
         "200":
           description: Пост успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный формат ID, неверный магазин
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Пост не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
           schema:
             additionalProperties: true
             type: object
@@ -758,6 +793,21 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties: true
+            type: object
       security:
       - ApiKeyAuth: []
       summary: Добавить товар в магазин
@@ -791,6 +841,26 @@ paths:
       responses:
         "200":
           description: Товар успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный формат ID, неверный магазин
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Товар не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
           schema:
             additionalProperties: true
             type: object
@@ -832,6 +902,26 @@ paths:
       responses:
         "200":
           description: Товар успешно обновлен
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Товар не найден
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
           schema:
             additionalProperties: true
             type: object

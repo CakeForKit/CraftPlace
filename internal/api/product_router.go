@@ -1,8 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	productservice "github.com/CakeForKit/CraftPlace.git/internal/services/product_service"
 	"github.com/gin-gonic/gin"
@@ -39,6 +41,9 @@ func NewProductRouter(
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddProductRequest true "Данные нового товара"
 // @Success 201 {object} map[string]interface{} "Товар успешно добавлен"
+// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
+// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products [post]
 func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -55,15 +60,19 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 		return
 	}
 
-	dataToAdd := productservice.AddProductData{
+	dataToAdd := models.AddProductData{
 		Title:       req.Title,
 		Description: req.Description,
 		Cost:        req.Cost,
 		ShopID:      shopID,
 		CategoryIDs: req.CategoryIDs,
 	}
-	if err := r.productServ.Add(ctx, dataToAdd); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if _, err := r.productServ.Add(ctx, dataToAdd); err != nil {
+		if errors.Is(err, productservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
@@ -81,6 +90,10 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 // @Param id_product path string true "ID изделия" format(uuid)
 // @Param request body reqresp.UpdateProductRequest true "Данные для обновления товара"
 // @Success 200 {object} map[string]interface{} "Товар успешно обновлен"
+// @Failure 400 {object} map[string]interface{} "Неверный формат данных или ID, неверный магазин"
+// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
+// @Failure 404 {object} map[string]interface{} "Товар не найден"
+// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products/{id_product} [put]
 func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -101,15 +114,19 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	dataToUpdate := productservice.UpdateProductData{
+	dataToUpdate := models.UpdateProductData{
 		Title:       req.Title,
 		Description: req.Description,
 		Cost:        req.Cost,
 		ShopID:      shopID,
 		CategoryIDs: req.CategoryIDs,
 	}
-	if err := r.productServ.Update(ctx, productID, dataToUpdate); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if _, err := r.productServ.Update(ctx, productID, dataToUpdate); err != nil {
+		if errors.Is(err, productservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})
@@ -126,17 +143,29 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_product path string true "ID изделия" format(uuid)
 // @Success 200 {object} map[string]interface{} "Товар успешно удален"
+// @Failure 400 {object} map[string]interface{} "Неверный формат ID, неверный магазин"
+// @Failure 401 {object} map[string]interface{} "Неавторизованный доступ"
+// @Failure 404 {object} map[string]interface{} "Товар не найден"
+// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop}/products/{id_product} [delete]
 func (r *ProductRouter) DeleteProduct(c *gin.Context) {
 	ctx := c.Request.Context()
-
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
 	productID, err := uuid.Parse(c.Param("id_product"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
-	if err := r.productServ.Delete(ctx, productID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := r.productServ.Delete(ctx, productID, shopID); err != nil {
+		if errors.Is(err, productservice.ErrWrongShop) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})

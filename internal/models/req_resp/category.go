@@ -14,4 +14,6 @@ type CategoryResponse struct {
 	ID          string `json:"id" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 	Title       string `json:"title" example:"Eco"`
 	Description string `json:"description" binding:"required,max=255" example:"Лучший магазин сережек"`
+	Page        uint64 `json:"page" example:"1"`
+	Size        uint64 `json:"size"  example:"20"`
 }

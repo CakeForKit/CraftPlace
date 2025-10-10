@@ -86,6 +86,10 @@ func (pg *PgProductRep) addFilterParams(query sq.SelectBuilder, filterOps *reqre
 			query = query.Where(sq.LtOrEq{"products.cost": filterOps.MaxCost})
 		}
 	}
+	query = query.Offset(filterOps.Offset)
+	if filterOps.Limit != 0 {
+		query = query.Limit(filterOps.Limit)
+	}
 	return query
 }
 

@@ -57,6 +57,10 @@ func (p *Category) GetID() uuid.UUID {
 	return p.id
 }
 
+func (p *Category) GetTitle() string {
+	return p.title
+}
+
 func (p *Category) GetDescription() string {
 	return p.description
 }

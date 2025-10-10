@@ -20,9 +20,9 @@ func NewPostRouter(
 	r := PostRouter{
 		postServ: postServ,
 	}
-	gr := router.Group("posts")
+	gr := router.Group("/shops/:id_shop/posts")
 	gr.POST("/", r.AddPostToShop)
-	gr.DELETE("/", r.DeletePost)
+	gr.DELETE("/:id_post", r.DeletePost)
 	return r
 }
 
@@ -34,9 +34,10 @@ func NewPostRouter(
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddPostRequest true "Данные нового поста"
 // @Success 201 {object} map[string]interface{} "Пост успешно добавлен"
-// @Router /user/user-posts [post]
+// @Router /shops/{id_shop}/posts [post]
 func (r *PostRouter) AddPostToShop(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -45,8 +46,16 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	if err := r.postServ.Add(ctx, req); err != nil {
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
+	dataToAdd := postservice.AddPostData{
+		Description: req.Description,
+		ShopID:      shopID,
+	}
+	if err := r.postServ.Add(ctx, dataToAdd); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -61,21 +70,16 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
-// @Param request body reqresp.DeletePostRequest true "Данные для удаления поста"
+// @Param id_shop path string true "ID магазина" format(uuid)
+// @Param id_post path string true "ID поста" format(uuid)
 // @Success 200 {object} map[string]interface{} "Пост успешно удален"
-// @Router /user/user-posts [delete]
+// @Router /shops/{id_shop}/posts/{id_post} [delete]
 func (r *PostRouter) DeletePost(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var req reqresp.DeletePostRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	postID, err := uuid.Parse(req.ID)
+	postID, err := uuid.Parse(c.Param("id_post"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
 	if err := r.postServ.Delete(ctx, postID); err != nil {

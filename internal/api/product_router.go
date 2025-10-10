@@ -20,10 +20,10 @@ func NewProductRouter(
 	r := ProductRouter{
 		productServ: productServ,
 	}
-	gr := router.Group("products")
+	gr := router.Group("shops/:id_shop/products")
 	gr.POST("/", r.AddProductToShop)
-	gr.PUT("/", r.UpdateProduct)
-	gr.DELETE("/", r.DeleteProduct)
+	gr.PUT("/:id_product", r.UpdateProduct)
+	gr.DELETE("/:id_product", r.DeleteProduct)
 
 	return r
 }
@@ -36,9 +36,10 @@ func NewProductRouter(
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.AddProductRequest true "Данные нового товара"
 // @Success 201 {object} map[string]interface{} "Товар успешно добавлен"
-// @Router /user-products [post]
+// @Router /shops/{id_shop}/products [post]
 func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -48,7 +49,20 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 		return
 	}
 
-	if err := r.productServ.Add(ctx, req); err != nil {
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
+
+	dataToAdd := productservice.AddProductData{
+		Title:       req.Title,
+		Description: req.Description,
+		Cost:        req.Cost,
+		ShopID:      shopID,
+		CategoryIDs: req.CategoryIDs,
+	}
+	if err := r.productServ.Add(ctx, dataToAdd); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -63,9 +77,11 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
+// @Param id_shop path string true "ID магазина" format(uuid)
+// @Param id_product path string true "ID изделия" format(uuid)
 // @Param request body reqresp.UpdateProductRequest true "Данные для обновления товара"
 // @Success 200 {object} map[string]interface{} "Товар успешно обновлен"
-// @Router /user-products [put]
+// @Router /shops/{id_shop}/products/{id_product} [put]
 func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -74,8 +90,25 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	shopID, err := uuid.Parse(c.Param("id_shop"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
+	productID, err := uuid.Parse(c.Param("id_product"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
 
-	if err := r.productServ.Update(ctx, req); err != nil {
+	dataToUpdate := productservice.UpdateProductData{
+		Title:       req.Title,
+		Description: req.Description,
+		Cost:        req.Cost,
+		ShopID:      shopID,
+		CategoryIDs: req.CategoryIDs,
+	}
+	if err := r.productServ.Update(ctx, productID, dataToUpdate); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -90,21 +123,16 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
-// @Param request body reqresp.DeleteProductRequest true "Данные для удаления товара"
+// @Param id_shop path string true "ID магазина" format(uuid)
+// @Param id_product path string true "ID изделия" format(uuid)
 // @Success 200 {object} map[string]interface{} "Товар успешно удален"
-// @Router /user-products [delete]
+// @Router /shops/{id_shop}/products/{id_product} [delete]
 func (r *ProductRouter) DeleteProduct(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var req reqresp.DeleteProductRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	productID, err := uuid.Parse(req.ID)
+	productID, err := uuid.Parse(c.Param("id_product"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
 	if err := r.productServ.Delete(ctx, productID); err != nil {

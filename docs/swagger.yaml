@@ -6,12 +6,8 @@ definitions:
         example: Магазин сережек
         maxLength: 255
         type: string
-      shopID:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
     required:
     - description
-    - shopID
     type: object
   reqresp.AddProductRequest:
     properties:
@@ -27,9 +23,6 @@ definitions:
         example: Магазин сережек
         maxLength: 255
         type: string
-      shopID:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
       title:
         example: Звезды
         maxLength: 255
@@ -38,7 +31,6 @@ definitions:
     - categoryIDs
     - cost
     - description
-    - shopID
     - title
     type: object
   reqresp.AddShopRequest:
@@ -64,23 +56,17 @@ definitions:
       id:
         example: bb2e8400-e29b-41d4-a716-446655442222
         type: string
+      page:
+        example: 1
+        type: integer
+      size:
+        example: 20
+        type: integer
       title:
         example: Eco
         type: string
     required:
     - description
-    type: object
-  reqresp.DeletePostRequest:
-    properties:
-      id:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
-    type: object
-  reqresp.DeleteProductRequest:
-    properties:
-      id:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
     type: object
   reqresp.LoginUserRequest:
     properties:
@@ -214,12 +200,6 @@ definitions:
         example: Лучший магазин сережек
         maxLength: 255
         type: string
-      id:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
-      shopID:
-        example: bb2e8400-e29b-41d4-a716-446655442222
-        type: string
       title:
         example: Лучшие звезды
         maxLength: 255
@@ -228,7 +208,6 @@ definitions:
     - categoryIDs
     - cost
     - description
-    - shopID
     - title
     type: object
   reqresp.UpdateShopRequest:
@@ -329,6 +308,19 @@ paths:
         in: query
         name: title
         type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -389,6 +381,19 @@ paths:
         in: query
         name: id_shop
         type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -444,6 +449,19 @@ paths:
         in: query
         name: id_category
         type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -482,6 +500,19 @@ paths:
         in: query
         name: id_user
         type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -624,36 +655,7 @@ paths:
       summary: Обновить магазин
       tags:
       - Магазины
-  /user/user-posts:
-    delete:
-      consumes:
-      - application/json
-      description: Удаляет пост пользователя
-      parameters:
-      - description: Bearer токен
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Данные для удаления поста
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reqresp.DeletePostRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Пост успешно удален
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Удалить пост
-      tags:
-      - Посты
+  /shops/{id_shop}/posts:
     post:
       consumes:
       - application/json
@@ -662,6 +664,12 @@ paths:
       - description: Bearer токен
         in: header
         name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
         required: true
         type: string
       - description: Данные нового поста
@@ -683,36 +691,43 @@ paths:
       summary: Добавить пост в магазин
       tags:
       - Посты
-  /user/user-products:
+  /shops/{id_shop}/posts/{id_post}:
     delete:
       consumes:
       - application/json
-      description: Удаляет товар пользователя
+      description: Удаляет пост пользователя
       parameters:
       - description: Bearer токен
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Данные для удаления товара
-        in: body
-        name: request
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
         required: true
-        schema:
-          $ref: '#/definitions/reqresp.DeleteProductRequest'
+        type: string
+      - description: ID поста
+        format: uuid
+        in: path
+        name: id_post
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Товар успешно удален
+          description: Пост успешно удален
           schema:
             additionalProperties: true
             type: object
       security:
       - ApiKeyAuth: []
-      summary: Удалить товар
+      summary: Удалить пост
       tags:
-      - Изделия
+      - Посты
+  /shops/{id_shop}/products:
     post:
       consumes:
       - application/json
@@ -721,6 +736,12 @@ paths:
       - description: Bearer токен
         in: header
         name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
         required: true
         type: string
       - description: Данные нового товара
@@ -742,6 +763,42 @@ paths:
       summary: Добавить товар в магазин
       tags:
       - Изделия
+  /shops/{id_shop}/products/{id_product}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет товар пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: ID изделия
+        format: uuid
+        in: path
+        name: id_product
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Товар успешно удален
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить товар
+      tags:
+      - Изделия
     put:
       consumes:
       - application/json
@@ -750,6 +807,18 @@ paths:
       - description: Bearer токен
         in: header
         name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: ID изделия
+        format: uuid
+        in: path
+        name: id_product
         required: true
         type: string
       - description: Данные для обновления товара

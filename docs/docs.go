@@ -108,6 +108,23 @@ const docTemplate = `{
                         "description": "Фильтр по названию категории",
                         "name": "title",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -197,6 +214,23 @@ const docTemplate = `{
                         "description": "Фильтр по ID магазина",
                         "name": "id_shop",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -275,6 +309,23 @@ const docTemplate = `{
                         "description": "Фильтр по ID категории",
                         "name": "id_category",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -330,6 +381,23 @@ const docTemplate = `{
                         "default": "00000000-0000-0000-0000-000000000000",
                         "description": "Фильтр по ID пользователя",
                         "name": "id_user",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "size",
                         "in": "query"
                     }
                 ],
@@ -542,7 +610,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-posts": {
+        "/shops/{id_shop}/posts": {
             "post": {
                 "security": [
                     {
@@ -569,6 +637,14 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Данные нового поста",
                         "name": "request",
                         "in": "body",
@@ -587,7 +663,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/shops/{id_shop}/posts/{id_post}": {
             "delete": {
                 "security": [
                     {
@@ -614,13 +692,20 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Данные для удаления поста",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.DeletePostRequest"
-                        }
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID поста",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -634,52 +719,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-products": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Обновляет данные товара пользователя",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Изделия"
-                ],
-                "summary": "Обновить товар",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer токен",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные для обновления товара",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.UpdateProductRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товар успешно обновлен",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
+        "/shops/{id_shop}/products": {
             "post": {
                 "security": [
                     {
@@ -706,6 +746,14 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Данные нового товара",
                         "name": "request",
                         "in": "body",
@@ -718,6 +766,69 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Товар успешно добавлен",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/shops/{id_shop}/products/{id_product}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет данные товара пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Изделия"
+                ],
+                "summary": "Обновить товар",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer токен",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID изделия",
+                        "name": "id_product",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления товара",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.UpdateProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Товар успешно обновлен",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -751,13 +862,20 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Данные для удаления товара",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.DeleteProductRequest"
-                        }
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID изделия",
+                        "name": "id_product",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -952,18 +1070,13 @@ const docTemplate = `{
         "reqresp.AddPostRequest": {
             "type": "object",
             "required": [
-                "description",
-                "shopID"
+                "description"
             ],
             "properties": {
                 "description": {
                     "type": "string",
                     "maxLength": 255,
                     "example": "Магазин сережек"
-                },
-                "shopID": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 }
             }
         },
@@ -973,7 +1086,6 @@ const docTemplate = `{
                 "categoryIDs",
                 "cost",
                 "description",
-                "shopID",
                 "title"
             ],
             "properties": {
@@ -992,10 +1104,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255,
                     "example": "Магазин сережек"
-                },
-                "shopID": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 },
                 "title": {
                     "type": "string",
@@ -1038,27 +1146,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "size": {
+                    "type": "integer",
+                    "example": 20
+                },
                 "title": {
                     "type": "string",
                     "example": "Eco"
-                }
-            }
-        },
-        "reqresp.DeletePostRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
-                }
-            }
-        },
-        "reqresp.DeleteProductRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 }
             }
         },
@@ -1229,7 +1327,6 @@ const docTemplate = `{
                 "categoryIDs",
                 "cost",
                 "description",
-                "shopID",
                 "title"
             ],
             "properties": {
@@ -1248,14 +1345,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255,
                     "example": "Лучший магазин сережек"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
-                },
-                "shopID": {
-                    "type": "string",
-                    "example": "bb2e8400-e29b-41d4-a716-446655442222"
                 },
                 "title": {
                     "type": "string",

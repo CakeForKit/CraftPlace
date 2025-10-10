@@ -72,6 +72,10 @@ func (pg *PgShopRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.
 	if filterOps.UserID != uuid.Nil {
 		query = query.Where(sq.Eq{"shops.user_id": filterOps.UserID})
 	}
+	query = query.Offset(filterOps.Offset)
+	if filterOps.Limit != 0 {
+		query = query.Limit(filterOps.Limit)
+	}
 	return query
 }
 

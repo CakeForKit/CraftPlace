@@ -10,7 +10,7 @@ import (
 )
 
 type CategoryServ interface {
-	GetCategorys(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error)
+	GetCategories(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error)
 	Add(ctx context.Context, addReq reqresp.AddCategoryRequest) error
 	Delete(ctx context.Context, categoryID uuid.UUID) error
 	Update(ctx context.Context, updateReq reqresp.UpdateCategoryRequest) error

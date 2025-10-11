@@ -130,7 +130,7 @@ func (pg *PgShopRep) GetByFilter(ctx context.Context, filterOps *reqresp.ShopFil
 	query = pg.addFilterParams(query, filterOps)
 	arts, err := pg.execSelectQuery(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("PgShopRep.GetAllArtworks: %w", err)
+		return nil, fmt.Errorf("PgShopRep.GetByFilter: %w", err)
 	}
 	return arts, nil
 }

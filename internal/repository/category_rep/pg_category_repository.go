@@ -25,7 +25,7 @@ func NewPgCategoryRep(
 	pgCreds *cnfg.PostgresCredentials,
 	dbConf *cnfg.DatebaseConnConfig,
 ) (CategoryRep, error) {
-	connStr := fmt.Sprintf("categorygres://%s:%s@%s:%d/%s",
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 		pgCreds.Username, pgCreds.Password, pgCreds.Host, pgCreds.Port, pgCreds.DbName)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
@@ -67,7 +67,7 @@ func (pg *PgCategoryRep) parseCategorysRows(rows *sql.Rows) ([]*models.Category,
 
 func (pg *PgCategoryRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.CategoryFilter) sq.SelectBuilder {
 	if filterOps.Title != "" {
-		query = query.Where(sq.Eq{"categories.title": filterOps.Title})
+		query = query.Where(sq.ILike{"categories.title": "%" + filterOps.Title + "%"})
 	}
 	query = query.Offset(filterOps.Offset)
 	if filterOps.Limit != 0 {
@@ -93,6 +93,26 @@ func (pg *PgCategoryRep) execSelectQuery(ctx context.Context, query sq.SelectBui
 		return nil, fmt.Errorf("%w", err)
 	}
 	return arts, nil
+}
+
+func (pg *PgCategoryRep) GetByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query := psql.Select(
+		"categories.id", "categories.title", "categories.description").
+		From("categories").
+		Where(sq.Eq{"categories.id": categoryID})
+
+	arts, err := pg.execSelectQuery(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("PgCategoryRep.GetByID: %w", err)
+	}
+
+	if len(arts) == 0 {
+		return nil, ErrCategoryNotFound
+	} else if len(arts) > 1 {
+		return nil, fmt.Errorf("PgCategoryRep.GetByID: %w", dberrors.ErrExpectedOne)
+	}
+	return arts[0], nil
 }
 
 func (pg *PgCategoryRep) GetByFilter(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error) {

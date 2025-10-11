@@ -70,7 +70,7 @@ func (pg *PgProductRep) parseProductsRows(rows *sql.Rows) ([]*models.Product, er
 
 func (pg *PgProductRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.ProductFilter) sq.SelectBuilder {
 	if filterOps.Title != "" {
-		query = query.Where(sq.Eq{"products.title": filterOps.Title})
+		query = query.Where(sq.ILike{"products.title": "%" + filterOps.Title + "%"})
 	}
 	if filterOps.ShopID != uuid.Nil {
 		query = query.Where(sq.Eq{"products.shop_id": filterOps.ShopID})
@@ -95,7 +95,7 @@ func (pg *PgProductRep) addFilterParams(query sq.SelectBuilder, filterOps *reqre
 }
 
 func (pg *PgProductRep) addSortParams(query sq.SelectBuilder) sq.SelectBuilder {
-	query = query.OrderBy("artworks.publication_time DESC ")
+	query = query.OrderBy("products.update_time DESC ")
 	return query
 }
 

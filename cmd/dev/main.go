@@ -15,6 +15,7 @@ import (
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
+	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
 	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
 	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
@@ -89,6 +90,10 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	categoryRep, err := categoryrep.NewPgCategoryRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
 	// --------------------
 	// ----- Services -----
 	tokenMaker, err := tokenmaker.NewTokenMaker(appCnfg.TokenSymmetricKey)
@@ -105,10 +110,10 @@ func main() {
 		panic(err.Error())
 	}
 	shopServ := shopservice.NewShopServ(shopRep, authz)
-	searcherServ := searcher.NewSearcher()
 	postServ := postservice.NewPostServ(postRep, authz, shopRep)
 	productServ := productservice.NewProductServ(productRep, authz, shopRep)
 	userSelfServ := userselfservice.NewUserSelfServ(authz, userRep, hasher)
+	searcherServ := searcher.NewSearcher(categoryRep, shopRep, postRep, productRep)
 	// --------------------
 
 	// ----- Groups -----

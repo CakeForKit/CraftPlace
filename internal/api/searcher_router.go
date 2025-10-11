@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
+	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
+	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -96,9 +98,9 @@ func (r *SearcherRouter) GetCategoryByID(c *gin.Context) {
 		return
 	}
 
-	category, err := r.searcherServ.GetCategoruByID(ctx, categoryID)
+	category, err := r.searcherServ.GetCategoryByID(ctx, categoryID)
 	if err != nil {
-		if errors.Is(err, searcher.ErrCategoryNotFound) {
+		if errors.Is(err, categoryrep.ErrCategoryNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -181,7 +183,7 @@ func (r *SearcherRouter) GetShopByID(c *gin.Context) {
 
 	shop, err := r.searcherServ.GetShopByID(ctx, shopID)
 	if err != nil {
-		if errors.Is(err, searcher.ErrShopNotFound) {
+		if errors.Is(err, shoprep.ErrShopNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -271,7 +273,7 @@ func (r *SearcherRouter) GetProducts(c *gin.Context) {
 // @Tags Поиск
 // @Accept json
 // @Produce json
-// @Param id_shop query string false "Фильтр по ID магазина" format(uuid)
+// @Param id_shop query string false "Фильтр по ID магазина" format(uuid) default(00000000-0000-0000-0000-000000000000)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param size query int false "Размер страницы" default(20) minimum(1) maximum(100)
 // @Success 200 {array} reqresp.PostResponse "Список постов"

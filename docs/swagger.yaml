@@ -392,7 +392,8 @@ paths:
       - application/json
       description: Возвращает список постов с возможностью фильтрации по магазину
       parameters:
-      - description: Фильтр по ID магазина
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID магазина
         format: uuid
         in: query
         name: id_shop

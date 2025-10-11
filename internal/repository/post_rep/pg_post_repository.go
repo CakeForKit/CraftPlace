@@ -78,7 +78,7 @@ func (pg *PgPostRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.
 }
 
 func (pg *PgPostRep) addSortParams(query sq.SelectBuilder) sq.SelectBuilder {
-	query = query.OrderBy("artworks.publication_time DESC ")
+	query = query.OrderBy("posts.publication_time DESC ")
 	return query
 }
 

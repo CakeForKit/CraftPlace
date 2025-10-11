@@ -3,10 +3,14 @@ package searcher
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
-	testobj "github.com/CakeForKit/CraftPlace.git/internal/tests/test_obj"
+	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
+	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
+	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
+	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	"github.com/google/uuid"
 )
 
@@ -16,64 +20,84 @@ type Searcher interface {
 	GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
 	GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error)
 
-	GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error)
+	GetCategoryByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error)
 	GetShopByID(ctx context.Context, shopID uuid.UUID) (*models.Shop, error)
 }
 
 var (
-	ErrCategoryNotFound = errors.New("category not found")
-	ErrShopNotFound     = errors.New("shop not found")
+	ErrSearcher = errors.New("searcher")
 )
 
-func NewSearcher() Searcher {
-	return &searcher{}
+func NewSearcher(categoryRep categoryrep.CategoryRep,
+	shopRep shoprep.ShopRep,
+	postRep postrep.PostRep,
+	productRep productrep.ProductRep,
+) Searcher {
+	return &searcher{
+		shopRep:     shopRep,
+		categoryRep: categoryRep,
+		postRep:     postRep,
+		productRep:  productRep,
+	}
 }
 
 type searcher struct {
+	categoryRep categoryrep.CategoryRep
+	shopRep     shoprep.ShopRep
+	postRep     postrep.PostRep
+	productRep  productrep.ProductRep
 }
 
 func (s *searcher) GetCategories(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error) {
-	categoryCreator := testobj.NewCategoryMother()
-	res := make([]*models.Category, 3)
-	for i := range res {
-		res[i] = categoryCreator.CategoryP()
+	baseErr := fmt.Errorf("%w, GetCategories", ErrSearcher)
+	res, err := s.categoryRep.GetByFilter(ctx, filterOps)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return res, nil
 }
 
 func (s *searcher) GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {
-	postCreator := testobj.NewPostMother()
-	res := make([]*models.Post, 3)
-	for i := range res {
-		res[i] = postCreator.PostP()
+	baseErr := fmt.Errorf("%w, GetPosts", ErrSearcher)
+	res, err := s.postRep.GetByFilter(ctx, filterOps)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return res, nil
 }
 
 func (s *searcher) GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error) {
-	creator := testobj.NewProductMother()
-	res := make([]*models.Product, 3)
-	for i := range res {
-		res[i] = creator.ProductP()
+	baseErr := fmt.Errorf("%w, GetProducts", ErrSearcher)
+	res, err := s.productRep.GetByFilter(ctx, filterOps)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return res, nil
 }
 
 func (s *searcher) GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error) {
-	creator := testobj.NewShopMother()
-	res := make([]*models.Shop, 3)
-	for i := range res {
-		res[i] = creator.ShopP()
+	baseErr := fmt.Errorf("%w, GetShops", ErrSearcher)
+	res, err := s.shopRep.GetByFilter(ctx, filterOps)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return res, nil
 }
 
-func (s *searcher) GetCategoruByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error) {
-	categoryCreator := testobj.NewCategoryMother()
-	return categoryCreator.CategoryP(), nil
+func (s *searcher) GetCategoryByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error) {
+	baseErr := fmt.Errorf("%w, GetCategoryByID", ErrSearcher)
+	res, err := s.categoryRep.GetByID(ctx, categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
+	}
+	return res, nil
 }
 
 func (s *searcher) GetShopByID(ctx context.Context, shopID uuid.UUID) (*models.Shop, error) {
-	creator := testobj.NewShopMother()
-	return creator.ShopP(), nil
+	baseErr := fmt.Errorf("%w, GetShopByID", ErrSearcher)
+	res, err := s.shopRep.GetByID(ctx, shopID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", baseErr, err)
+	}
+	return res, nil
 }

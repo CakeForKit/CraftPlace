@@ -226,6 +226,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "format": "uuid",
+                        "default": "00000000-0000-0000-0000-000000000000",
                         "description": "Фильтр по ID магазина",
                         "name": "id_shop",
                         "in": "query"

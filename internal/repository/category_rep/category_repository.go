@@ -10,6 +10,7 @@ import (
 )
 
 type CategoryRep interface {
+	GetByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error)
 	GetByFilter(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error)
 	Add(ctx context.Context, m *models.Category) error
 	Delete(ctx context.Context, id uuid.UUID) error

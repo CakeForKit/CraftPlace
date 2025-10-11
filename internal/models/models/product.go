@@ -110,7 +110,7 @@ func (p *Product) Update(updateReq *UpdateProductData) error {
 func (p *Product) AddCategoryIDs(cids uuid.UUIDs) error {
 	for _, oldID := range p.categoryIDs {
 		if slices.Contains(cids, oldID) {
-			return fmt.Errorf("Event.AddArtworks %w", ErrCategoryValidate)
+			return fmt.Errorf("Event.AddCategoryIDs %w", ErrCategoryValidate)
 		}
 	}
 	p.categoryIDs = append(p.categoryIDs, cids...)

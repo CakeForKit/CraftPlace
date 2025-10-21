@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
 	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
 	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
@@ -15,10 +14,10 @@ import (
 )
 
 type Searcher interface {
-	GetCategories(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error)
-	GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error)
-	GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
-	GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error)
+	GetCategories(ctx context.Context, filterOps *models.CategoryFilter) ([]*models.Category, error)
+	GetShops(ctx context.Context, filterOps *models.ShopFilter) ([]*models.Shop, error)
+	GetPosts(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error)
+	GetProducts(ctx context.Context, filterOps *models.ProductFilter) ([]*models.Product, error)
 
 	GetCategoryByID(ctx context.Context, categoryID uuid.UUID) (*models.Category, error)
 	GetShopByID(ctx context.Context, shopID uuid.UUID) (*models.Shop, error)
@@ -48,7 +47,7 @@ type searcher struct {
 	productRep  productrep.ProductRep
 }
 
-func (s *searcher) GetCategories(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error) {
+func (s *searcher) GetCategories(ctx context.Context, filterOps *models.CategoryFilter) ([]*models.Category, error) {
 	baseErr := fmt.Errorf("%w, GetCategories", ErrSearcher)
 	res, err := s.categoryRep.GetByFilter(ctx, filterOps)
 	if err != nil {
@@ -57,7 +56,7 @@ func (s *searcher) GetCategories(ctx context.Context, filterOps *reqresp.Categor
 	return res, nil
 }
 
-func (s *searcher) GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {
+func (s *searcher) GetPosts(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error) {
 	baseErr := fmt.Errorf("%w, GetPosts", ErrSearcher)
 	res, err := s.postRep.GetByFilter(ctx, filterOps)
 	if err != nil {
@@ -66,7 +65,7 @@ func (s *searcher) GetPosts(ctx context.Context, filterOps *reqresp.PostFilter) 
 	return res, nil
 }
 
-func (s *searcher) GetProducts(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error) {
+func (s *searcher) GetProducts(ctx context.Context, filterOps *models.ProductFilter) ([]*models.Product, error) {
 	baseErr := fmt.Errorf("%w, GetProducts", ErrSearcher)
 	res, err := s.productRep.GetByFilter(ctx, filterOps)
 	if err != nil {
@@ -75,7 +74,7 @@ func (s *searcher) GetProducts(ctx context.Context, filterOps *reqresp.ProductFi
 	return res, nil
 }
 
-func (s *searcher) GetShops(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error) {
+func (s *searcher) GetShops(ctx context.Context, filterOps *models.ShopFilter) ([]*models.Shop, error) {
 	baseErr := fmt.Errorf("%w, GetShops", ErrSearcher)
 	res, err := s.shopRep.GetByFilter(ctx, filterOps)
 	if err != nil {

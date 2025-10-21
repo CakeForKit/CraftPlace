@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
@@ -51,7 +52,11 @@ func (r *ShopRouter) AddUserShop(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := r.shopServ.Add(ctx, req)
+	dataAdd := models.AddShopData{
+		Title:       req.Title,
+		Description: req.Description,
+	}
+	_, err := r.shopServ.Add(ctx, dataAdd)
 	if err != nil {
 		if errors.Is(err, shopservice.ErrWrongShop) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -91,8 +96,12 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	updateData := models.UpdateShopData{
+		Title:       req.Title,
+		Description: req.Description,
+	}
 
-	if _, err := r.shopServ.Update(ctx, shopID, req); err != nil {
+	if _, err := r.shopServ.Update(ctx, shopID, updateData); err != nil {
 		if errors.Is(err, shoprep.ErrShopNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else if errors.Is(err, shopservice.ErrWrongShop) {

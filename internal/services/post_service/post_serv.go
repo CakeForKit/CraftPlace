@@ -14,7 +14,7 @@ import (
 )
 
 type PostServ interface {
-	// GetPostsByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
+	// GetPostsByFilter(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error)
 	Add(ctx context.Context, addReq AddPostData) (*models.Post, error)
 	Delete(ctx context.Context, postID uuid.UUID, shopID uuid.UUID) error
 }
@@ -98,7 +98,7 @@ func (s *postServ) Delete(ctx context.Context, postID uuid.UUID, shopID uuid.UUI
 	return nil
 }
 
-// func (s *postServ) GetPostsByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {
+// func (s *postServ) GetPostsByFilter(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error) {
 // 	baseErr := fmt.Errorf("%w GetPostsByFilter", ErrPostServ)
 // 	posts, err := s.postRep.GetByFilter(ctx, filterOps)
 // 	if err != nil {

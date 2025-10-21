@@ -20,6 +20,16 @@ type Category struct {
 	description string
 }
 
+// type AddCategoryData struct {
+// 	Title       string
+// 	Description string
+// }
+
+// type UpdateCategoryData struct {
+// 	Title       string
+// 	Description string
+// }
+
 var (
 	ErrCategoryValidate = errors.New("model category validate error")
 )

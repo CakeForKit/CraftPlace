@@ -9,7 +9,6 @@ import (
 
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -66,7 +65,7 @@ func (pg *PgShopRep) parseShopsRows(rows *sql.Rows) ([]*models.Shop, error) {
 	return resShops, nil
 }
 
-func (pg *PgShopRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.ShopFilter) sq.SelectBuilder {
+func (pg *PgShopRep) addFilterParams(query sq.SelectBuilder, filterOps *models.ShopFilter) sq.SelectBuilder {
 	if filterOps.Title != "" {
 		query = query.Where(sq.ILike{"shops.title": "%" + filterOps.Title + "%"})
 	}
@@ -120,7 +119,7 @@ func (pg *PgShopRep) GetByID(ctx context.Context, id uuid.UUID) (*models.Shop, e
 	return arts[0], nil
 }
 
-func (pg *PgShopRep) GetByFilter(ctx context.Context, filterOps *reqresp.ShopFilter) ([]*models.Shop, error) {
+func (pg *PgShopRep) GetByFilter(ctx context.Context, filterOps *models.ShopFilter) ([]*models.Shop, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"shops.id", "shops.title", "shops.description",

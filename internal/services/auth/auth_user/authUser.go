@@ -5,7 +5,6 @@ import (
 
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	"github.com/CakeForKit/CraftPlace.git/internal/services/auth/hasher"
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
@@ -13,8 +12,8 @@ import (
 )
 
 type AuthUser interface {
-	LoginUser(ctx context.Context, lur reqresp.LoginUserRequest) (string, error)
-	RegisterUser(ctx context.Context, rur reqresp.RegisterUserRequest) error
+	LoginUser(ctx context.Context, lur models.LoginUserRequest) (string, error)
+	RegisterUser(ctx context.Context, rur models.RegisterUserRequest) error
 	VerifyByToken(token string) (*tokenmaker.Payload, error)
 }
 
@@ -35,7 +34,7 @@ func NewAuthUser(tokenMaker tokenmaker.TokenMaker, hasher hasher.Hasher, config 
 	return server
 }
 
-func (s *authUser) LoginUser(ctx context.Context, lur reqresp.LoginUserRequest) (string, error) {
+func (s *authUser) LoginUser(ctx context.Context, lur models.LoginUserRequest) (string, error) {
 	user, err := s.userrep.GetByLogin(ctx, lur.Login)
 	if err != nil {
 		return "", err
@@ -57,7 +56,7 @@ func (s *authUser) LoginUser(ctx context.Context, lur reqresp.LoginUserRequest) 
 	return accessToken, nil
 }
 
-func (s *authUser) RegisterUser(ctx context.Context, rur reqresp.RegisterUserRequest) error {
+func (s *authUser) RegisterUser(ctx context.Context, rur models.RegisterUserRequest) error {
 	hashedPassword, err := s.hasher.HashPassword(rur.Password)
 	if err != nil {
 		return err

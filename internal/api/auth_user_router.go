@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	authuser "github.com/CakeForKit/CraftPlace.git/internal/services/auth/auth_user"
@@ -43,8 +44,11 @@ func (r *AuthUserRouter) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	if err := r.authu.RegisterUser(ctx, req); err != nil {
+	model_req := models.RegisterUserRequest{
+		Login:    req.Login,
+		Password: req.Password,
+	}
+	if err := r.authu.RegisterUser(ctx, model_req); err != nil {
 		if errors.Is(err, userrep.ErrDuplicateLoginUser) {
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		} else {
@@ -73,8 +77,11 @@ func (r *AuthUserRouter) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	accessToken, err := r.authu.LoginUser(ctx, req)
+	model_req := models.LoginUserRequest{
+		Login:    req.Login,
+		Password: req.Password,
+	}
+	accessToken, err := r.authu.LoginUser(ctx, model_req)
 	if err != nil {
 		if errors.Is(err, userrep.ErrUserNotFound) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})

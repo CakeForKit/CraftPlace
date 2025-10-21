@@ -12,14 +12,9 @@ type AddShopRequest struct {
 }
 
 type UpdateShopRequest struct {
-	// ShopID      string `json:"id_shop" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 	Title       string `json:"title" binding:"required,max=255" example:"Лучшие звезды"`
 	Description string `json:"description" binding:"required,max=255" example:"Лучший магазин сережек"`
 }
-
-// type DeleteShopRequest struct {
-// 	ShopID string `json:"id_shop" example:"bb2e8400-e29b-41d4-a716-446655442222"`
-// }
 
 type ShopResponse struct {
 	ShopID      string    `json:"id_shop" example:"bb2e8400-e29b-41d4-a716-446655442222"`

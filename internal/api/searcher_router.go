@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
@@ -64,7 +65,7 @@ func (r *SearcherRouter) GetCategories(c *gin.Context) {
 	}
 	offset := (page - 1) * size
 	limit := size
-	filterOps := reqresp.CategoryFilter{
+	filterOps := models.CategoryFilter{
 		Title:  c.Query("title"),
 		Offset: offset,
 		Limit:  limit,
@@ -151,7 +152,7 @@ func (r *SearcherRouter) GetShops(c *gin.Context) {
 	}
 	offset := (page - 1) * size
 	limit := size
-	filterOps := reqresp.ShopFilter{
+	filterOps := models.ShopFilter{
 		Title:  c.Query("title"),
 		UserID: userID,
 		Offset: offset,
@@ -256,7 +257,7 @@ func (r *SearcherRouter) GetProducts(c *gin.Context) {
 	}
 	offset := (page - 1) * size
 	limit := size
-	filterOps := reqresp.ProductFilter{
+	filterOps := models.ProductFilter{
 		Title:      c.Query("title"), // default = ""
 		MaxCost:    maxCost,
 		MinCost:    minCost,
@@ -313,7 +314,7 @@ func (r *SearcherRouter) GetPosts(c *gin.Context) {
 	}
 	offset := (page - 1) * size
 	limit := size
-	filterOps := reqresp.PostFilter{
+	filterOps := models.PostFilter{
 		ShopID: shopID,
 		Offset: offset,
 		Limit:  limit,

@@ -9,7 +9,6 @@ import (
 
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -66,7 +65,7 @@ func (pg *PgPostRep) parsePostsRows(rows *sql.Rows) ([]*models.Post, error) {
 	return resPosts, nil
 }
 
-func (pg *PgPostRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.PostFilter) sq.SelectBuilder {
+func (pg *PgPostRep) addFilterParams(query sq.SelectBuilder, filterOps *models.PostFilter) sq.SelectBuilder {
 	if filterOps.ShopID != uuid.Nil {
 		query = query.Where(sq.Eq{"posts.shop_id": filterOps.ShopID})
 	}
@@ -122,7 +121,7 @@ func (pg *PgPostRep) GetByID(ctx context.Context, postID uuid.UUID) (*models.Pos
 	return arts[0], nil
 }
 
-func (pg *PgPostRep) GetByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error) {
+func (pg *PgPostRep) GetByFilter(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"posts.id", "posts.description",

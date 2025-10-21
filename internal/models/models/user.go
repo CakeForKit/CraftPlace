@@ -19,6 +19,16 @@ type User struct {
 	hashedPassword string
 }
 
+type LoginUserRequest struct {
+	Login    string
+	Password string
+}
+
+type RegisterUserRequest struct {
+	Login    string
+	Password string
+}
+
 var (
 	ErrUserValidate = errors.New("model user validate error")
 )

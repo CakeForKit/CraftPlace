@@ -10,7 +10,6 @@ import (
 
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -68,7 +67,7 @@ func (pg *PgProductRep) parseProductsRows(rows *sql.Rows) ([]*models.Product, er
 	return resProducts, nil
 }
 
-func (pg *PgProductRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.ProductFilter) sq.SelectBuilder {
+func (pg *PgProductRep) addFilterParams(query sq.SelectBuilder, filterOps *models.ProductFilter) sq.SelectBuilder {
 	if filterOps.Title != "" {
 		query = query.Where(sq.ILike{"products.title": "%" + filterOps.Title + "%"})
 	}
@@ -177,7 +176,7 @@ func (pg *PgProductRep) getCategoryIDs(ctx context.Context, productID uuid.UUID)
 	return categoryIDs, nil
 }
 
-func (pg *PgProductRep) joinCategoryIDsToProducts(ctx context.Context, products []*models.Product, filterOps *reqresp.ProductFilter) ([]*models.Product, error) {
+func (pg *PgProductRep) joinCategoryIDsToProducts(ctx context.Context, products []*models.Product, filterOps *models.ProductFilter) ([]*models.Product, error) {
 	resProducts := make([]*models.Product, 0)
 	for _, p := range products {
 		categoryIDs, err := pg.getCategoryIDs(ctx, p.GetID())
@@ -208,7 +207,7 @@ func (pg *PgProductRep) joinCategoryIDsToProducts(ctx context.Context, products 
 	return resProducts, nil
 }
 
-func (pg *PgProductRep) GetByFilter(ctx context.Context, filterOps *reqresp.ProductFilter) ([]*models.Product, error) {
+func (pg *PgProductRep) GetByFilter(ctx context.Context, filterOps *models.ProductFilter) ([]*models.Product, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"products.id", "products.title", "products.description",

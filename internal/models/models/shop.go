@@ -23,6 +23,16 @@ type Shop struct {
 	updateTime  time.Time
 }
 
+type AddShopData struct {
+	Title       string
+	Description string
+}
+
+type UpdateShopData struct {
+	Title       string
+	Description string
+}
+
 var (
 	ErrShopValidate = errors.New("model Shop validate error")
 )
@@ -62,7 +72,7 @@ func (s *Shop) ToResponse() reqresp.ShopResponse {
 	}
 }
 
-func (s *Shop) Update(updateReq *reqresp.UpdateShopRequest) error {
+func (s *Shop) Update(updateReq *UpdateShopData) error {
 	copyS := *s
 	if updateReq.Title != "" {
 		copyS.title = updateReq.Title

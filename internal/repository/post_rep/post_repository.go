@@ -5,12 +5,11 @@ import (
 	"errors"
 
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	"github.com/google/uuid"
 )
 
 type PostRep interface {
-	GetByFilter(ctx context.Context, filterOps *reqresp.PostFilter) ([]*models.Post, error)
+	GetByFilter(ctx context.Context, filterOps *models.PostFilter) ([]*models.Post, error)
 	GetByID(ctx context.Context, postID uuid.UUID) (*models.Post, error)
 	Add(ctx context.Context, m *models.Post) error
 	Delete(ctx context.Context, postID uuid.UUID) error

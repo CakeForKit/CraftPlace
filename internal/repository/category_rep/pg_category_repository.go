@@ -9,7 +9,6 @@ import (
 
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	dberrors "github.com/CakeForKit/CraftPlace.git/internal/repository/db_errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -65,7 +64,7 @@ func (pg *PgCategoryRep) parseCategorysRows(rows *sql.Rows) ([]*models.Category,
 	return resCategorys, nil
 }
 
-func (pg *PgCategoryRep) addFilterParams(query sq.SelectBuilder, filterOps *reqresp.CategoryFilter) sq.SelectBuilder {
+func (pg *PgCategoryRep) addFilterParams(query sq.SelectBuilder, filterOps *models.CategoryFilter) sq.SelectBuilder {
 	if filterOps.Title != "" {
 		query = query.Where(sq.ILike{"categories.title": "%" + filterOps.Title + "%"})
 	}
@@ -115,7 +114,7 @@ func (pg *PgCategoryRep) GetByID(ctx context.Context, categoryID uuid.UUID) (*mo
 	return arts[0], nil
 }
 
-func (pg *PgCategoryRep) GetByFilter(ctx context.Context, filterOps *reqresp.CategoryFilter) ([]*models.Category, error) {
+func (pg *PgCategoryRep) GetByFilter(ctx context.Context, filterOps *models.CategoryFilter) ([]*models.Category, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.Select(
 		"categories.id", "categories.title", "categories.description").

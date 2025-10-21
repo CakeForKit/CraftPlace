@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/CakeForKit/CraftPlace.git/internal/models/models"
-	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
 	auth "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
 	"github.com/google/uuid"
@@ -15,9 +14,9 @@ import (
 
 type ShopServ interface {
 	// UserID в контексте
-	Add(ctx context.Context, addReq reqresp.AddShopRequest) (*models.Shop, error)
+	Add(ctx context.Context, addReq models.AddShopData) (*models.Shop, error)
 	Delete(ctx context.Context, shopID uuid.UUID) error
-	Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) (*models.Shop, error)
+	Update(ctx context.Context, shopID uuid.UUID, updateReq models.UpdateShopData) (*models.Shop, error)
 }
 
 var (
@@ -53,7 +52,7 @@ func (s *shopServ) checkUserRights(ctx context.Context, shopID uuid.UUID) error 
 	return nil
 }
 
-func (s *shopServ) Add(ctx context.Context, addReq reqresp.AddShopRequest) (*models.Shop, error) {
+func (s *shopServ) Add(ctx context.Context, addReq models.AddShopData) (*models.Shop, error) {
 	baseErr := fmt.Errorf("%w Add", ErrShopServ)
 	userID, err := s.authz.UserIDFromContext(ctx)
 	if err != nil {
@@ -87,7 +86,7 @@ func (s *shopServ) Delete(ctx context.Context, shopID uuid.UUID) error {
 	return nil
 }
 
-func (s *shopServ) Update(ctx context.Context, shopID uuid.UUID, updateReq reqresp.UpdateShopRequest) (*models.Shop, error) {
+func (s *shopServ) Update(ctx context.Context, shopID uuid.UUID, updateReq models.UpdateShopData) (*models.Shop, error) {
 	baseErr := fmt.Errorf("%w Update", ErrShopServ)
 	if err := s.checkUserRights(ctx, shopID); err != nil {
 		return nil, fmt.Errorf("%w: %w", baseErr, err)

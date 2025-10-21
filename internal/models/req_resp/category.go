@@ -17,3 +17,7 @@ type CategoryResponse struct {
 	Page        uint64 `json:"page" example:"1"`
 	Size        uint64 `json:"size"  example:"20"`
 }
+
+type CategoriesResponse struct {
+	Categories []CategoryResponse `json:"categories"`
+}

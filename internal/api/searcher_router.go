@@ -34,6 +34,8 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 	return r
 }
 
+// @Success 200 {array} reqresp.CategoryResponse
+
 // GetCategories godoc
 // @Summary Получить категории
 // @Description Возвращает список категорий с возможностью фильтрации
@@ -43,7 +45,9 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 // @Param title query string false "Фильтр по названию категории"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param size query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Success 200 {array} reqresp.CategoryResponse
+// @Success 200 {object} reqresp.CategoriesResponse "Успешный ответ с категориями"
+// @Failure 400 {object} ErrorResponse "Неверный формат параметров пагинации"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /categories [get]
 func (r *SearcherRouter) GetCategories(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -75,7 +79,10 @@ func (r *SearcherRouter) GetCategories(c *gin.Context) {
 	for i, v := range caterories {
 		resp[i] = v.ToResponse()
 	}
-	c.JSON(http.StatusOK, resp)
+
+	c.JSON(http.StatusOK, gin.H{"Categories": reqresp.CategoriesResponse{
+		Categories: resp,
+	}})
 }
 
 // GetCategoryByID godoc
@@ -86,9 +93,9 @@ func (r *SearcherRouter) GetCategories(c *gin.Context) {
 // @Produce json
 // @Param id_category path string true "ID категории" format(uuid)
 // @Success 200 {object} reqresp.CategoryResponse "Информация о категории"
-// @Failure 400 {object} map[string]interface{} "Неверный формат ID категории"
-// @Failure 404 {object} map[string]interface{} "Категория не найдена"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Failure 400 {object} ErrorResponse "Неверный формат ID категории"
+// @Failure 404 {object} ErrorResponse "Категория не найдена"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /categories/{id_category} [get]
 func (r *SearcherRouter) GetCategoryByID(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -120,7 +127,9 @@ func (r *SearcherRouter) GetCategoryByID(c *gin.Context) {
 // @Param id_user query string false "Фильтр по ID пользователя" format(uuid) default(00000000-0000-0000-0000-000000000000)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param size query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Success 200 {array} reqresp.ShopResponse
+// @Success 200 {object} reqresp.ShopsResponse
+// @Failure 400 {object} ErrorResponse "Неверный формат параметров пагинации или ID пользователя"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /shops [get]
 func (r *SearcherRouter) GetShops(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -158,7 +167,9 @@ func (r *SearcherRouter) GetShops(c *gin.Context) {
 	for i, v := range shops {
 		resp[i] = v.ToResponse()
 	}
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, reqresp.ShopsResponse{
+		Shops: resp,
+	})
 }
 
 // GetShopByID godoc
@@ -169,9 +180,9 @@ func (r *SearcherRouter) GetShops(c *gin.Context) {
 // @Produce json
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Success 200 {object} reqresp.ShopResponse "Информация о магазине"
-// @Failure 400 {object} map[string]interface{} "Неверный формат ID магазина"
-// @Failure 404 {object} map[string]interface{} "Магазин не найден"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Failure 400 {object} ErrorResponse "Неверный формат ID магазина"
+// @Failure 404 {object} ErrorResponse "Магазин не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /shops/{id_shop} [get]
 func (r *SearcherRouter) GetShopByID(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -206,9 +217,9 @@ func (r *SearcherRouter) GetShopByID(c *gin.Context) {
 // @Param id_category query string false "Фильтр по ID категории" format(uuid) default(00000000-0000-0000-0000-000000000000)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param size query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Success 200 {array} reqresp.ProductResponse "Список товаров"
-// @Failure 400 {object} map[string]interface{} "Неверный формат параметров"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 200 {object} reqresp.ProductsResponse "Список товаров"
+// @Failure 400 {object} ErrorResponse "Неверный формат параметров (цена, ID, пагинация)"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /products [get]
 func (r *SearcherRouter) GetProducts(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -264,7 +275,9 @@ func (r *SearcherRouter) GetProducts(c *gin.Context) {
 	for i, v := range products {
 		resp[i] = v.ToResponse()
 	}
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, reqresp.ProductsResponse{
+		Products: resp,
+	})
 }
 
 // GetPosts godoc
@@ -276,9 +289,9 @@ func (r *SearcherRouter) GetProducts(c *gin.Context) {
 // @Param id_shop query string false "Фильтр по ID магазина" format(uuid) default(00000000-0000-0000-0000-000000000000)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param size query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Success 200 {array} reqresp.PostResponse "Список постов"
-// @Failure 400 {object} map[string]interface{} "Неверный формат ID магазина"
-// @Failure 500 {object} map[string]interface{} "Внутренняя ошибка сервера"
+// @Success 200 {object} reqresp.PostsResponse "Список постов"
+// @Failure 400 {object} ErrorResponse "Неверный формат ID магазина или параметров пагинации"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /posts [get]
 func (r *SearcherRouter) GetPosts(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -315,5 +328,7 @@ func (r *SearcherRouter) GetPosts(c *gin.Context) {
 	for i, v := range posts {
 		resp[i] = v.ToResponse()
 	}
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, reqresp.PostsResponse{
+		Posts: resp,
+	})
 }

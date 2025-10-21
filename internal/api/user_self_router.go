@@ -79,7 +79,7 @@ func (r *UserSelfRouter) GetUserByID(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_user path string true "ID пользователя" format(uuid)
 // @Param request body reqresp.UpdateLoginRequest true "Данные для обновления логина"
-// @Success 200  "Успешное обновление"
+// @Success 204  "Успешное обновление"
 // @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверные данные запроса, неверный пользователь"
 // @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse  "Пользователь не найден"
@@ -111,7 +111,7 @@ func (r *UserSelfRouter) UpdateLogin(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // UpdatePassword godoc
@@ -124,7 +124,7 @@ func (r *UserSelfRouter) UpdateLogin(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_user path string true "ID пользователя" format(uuid)
 // @Param request body reqresp.UpdateUserPasswordRequest true "Данные для обновления пароля"
-// @Success 200 "Успешное обновление"
+// @Success 204 "Успешное обновление"
 // @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверные данные запроса, неверный пользователь"
 // @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse  "Пользователь не найден"
@@ -155,5 +155,5 @@ func (r *UserSelfRouter) UpdatePassword(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

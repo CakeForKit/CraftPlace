@@ -17,6 +17,6 @@ type PostResponse struct {
 	ShopID          uuid.UUID `json:"shopID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 }
 
-// type DeletePostRequest struct {
-// 	ID string `json:"id" example:"bb2e8400-e29b-41d4-a716-446655442222"`
-// }
+type PostsResponse struct {
+	Posts []PostResponse `json:"post"`
+}

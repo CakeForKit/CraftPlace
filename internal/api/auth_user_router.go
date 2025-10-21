@@ -30,7 +30,7 @@ func NewAuthUserRouter(router *gin.RouterGroup, authu authuser.AuthUser) AuthUse
 // @Tags аутентификация
 // @Accept json
 // @Param request body reqresp.RegisterUserRequest true "Данные для регистрации"
-// @Success 200 "Пользователь зарегистрирован"
+// @Success 204 "Пользователь зарегистрирован"
 // @Failure 400 {object} ErrorResponse  "Неверные входные параметры"
 // @Failure 401 {object} ErrorResponse  "Ошибка аутентификации"
 // @Failure 409 {object} ErrorResponse  "Попытка повторной регистрации"

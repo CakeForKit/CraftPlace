@@ -56,3 +56,4 @@ volumes:
 networks:
   postgres-craftplace-net:
     driver: bridge
+    name: craftplace-network

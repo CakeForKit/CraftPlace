@@ -53,6 +53,13 @@ definitions:
     - description
     - title
     type: object
+  reqresp.CategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/reqresp.CategoryResponse'
+        type: array
+    type: object
   reqresp.CategoryResponse:
     properties:
       description:
@@ -114,6 +121,13 @@ definitions:
     - description
     - shopID
     type: object
+  reqresp.PostsResponse:
+    properties:
+      post:
+        items:
+          $ref: '#/definitions/reqresp.PostResponse'
+        type: array
+    type: object
   reqresp.ProductResponse:
     properties:
       categoryIDs:
@@ -145,6 +159,13 @@ definitions:
     - cost
     - description
     - shopID
+    type: object
+  reqresp.ProductsResponse:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/reqresp.ProductResponse'
+        type: array
     type: object
   reqresp.RegisterUserRequest:
     properties:
@@ -182,6 +203,13 @@ definitions:
     required:
     - description
     - userID
+    type: object
+  reqresp.ShopsResponse:
+    properties:
+      shops:
+        items:
+          $ref: '#/definitions/reqresp.ShopResponse'
+        type: array
     type: object
   reqresp.UpdateLoginRequest:
     properties:
@@ -297,7 +325,7 @@ paths:
         schema:
           $ref: '#/definitions/reqresp.RegisterUserRequest'
       responses:
-        "200":
+        "204":
           description: Пользователь зарегистрирован
         "400":
           description: Неверные входные параметры
@@ -341,11 +369,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Успешный ответ с категориями
           schema:
-            items:
-              $ref: '#/definitions/reqresp.CategoryResponse'
-            type: array
+            $ref: '#/definitions/reqresp.CategoriesResponse'
+        "400":
+          description: Неверный формат параметров пагинации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить категории
       tags:
       - Поиск
@@ -371,18 +405,15 @@ paths:
         "400":
           description: Неверный формат ID категории
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Категория не найдена
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить категорию по ID
       tags:
       - Поиск
@@ -417,19 +448,15 @@ paths:
         "200":
           description: Список постов
           schema:
-            items:
-              $ref: '#/definitions/reqresp.PostResponse'
-            type: array
+            $ref: '#/definitions/reqresp.PostsResponse'
         "400":
-          description: Неверный формат ID магазина
+          description: Неверный формат ID магазина или параметров пагинации
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить посты
       tags:
       - Поиск
@@ -485,19 +512,15 @@ paths:
         "200":
           description: Список товаров
           schema:
-            items:
-              $ref: '#/definitions/reqresp.ProductResponse'
-            type: array
+            $ref: '#/definitions/reqresp.ProductsResponse'
         "400":
-          description: Неверный формат параметров
+          description: Неверный формат параметров (цена, ID, пагинация)
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить товары
       tags:
       - Поиск
@@ -536,9 +559,15 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/reqresp.ShopResponse'
-            type: array
+            $ref: '#/definitions/reqresp.ShopsResponse'
+        "400":
+          description: Неверный формат параметров пагинации или ID пользователя
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить магазины
       tags:
       - Поиск
@@ -600,7 +629,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Магазин успешно удален
         "400":
           description: Неверный формат ID, неверный магазин
@@ -644,18 +673,15 @@ paths:
         "400":
           description: Неверный формат ID магазина
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "404":
           description: Магазин не найден
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Получить магазин по ID
       tags:
       - Поиск
@@ -684,7 +710,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Магазин успешно обновлен
         "400":
           description: Неверный формат ID, неверные данные запроса, неверный магазин
@@ -778,7 +804,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Пост успешно удален
         "400":
           description: Неверный формат ID, неверный магазин
@@ -872,7 +898,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Товар успешно удален
         "400":
           description: Неверный формат ID, неверный магазин
@@ -926,7 +952,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Товар успешно обновлен
         "400":
           description: Неверный формат данных или ID, неверный магазин
@@ -1020,7 +1046,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Успешное обновление
         "400":
           description: Неверный формат ID, неверные данные запроса, неверный пользователь
@@ -1073,7 +1099,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Успешное обновление
         "400":
           description: Неверный формат ID, неверные данные запроса, неверный пользователь

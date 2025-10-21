@@ -30,6 +30,6 @@ type ProductResponse struct {
 	UpdateTime  time.Time   `json:"updateTime" example:"2023-06-15T14:30:00Z"`
 }
 
-// type DeleteProductRequest struct {
-// 	ID string `json:"id" example:"bb2e8400-e29b-41d4-a716-446655442222"`
-// }
+type ProductsResponse struct {
+	Products []ProductResponse `json:"products"`
+}

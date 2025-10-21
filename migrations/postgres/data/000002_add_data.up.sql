@@ -1,8 +1,6 @@
 -- Active: 1760105453579@@127.0.0.1@5432@craftplace
 
 
--- Active: 1744740356603@@127.0.0.1@5432@artworks
-
 -- Функция для генерации случайного логина
 CREATE OR REPLACE FUNCTION random_login() RETURNS VARCHAR(50) AS $$
 DECLARE

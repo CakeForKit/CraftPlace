@@ -28,3 +28,7 @@ type ShopResponse struct {
 	UserID      uuid.UUID `json:"userID" binding:"required,uuid" example:"bb2e8400-e29b-41d4-a716-446655442222"`
 	UpdateTime  time.Time `json:"updateTime" example:"2023-06-15T14:30:00Z"`
 }
+
+type ShopsResponse struct {
+	Shops []ShopResponse `json:"shops"`
+}

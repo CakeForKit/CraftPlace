@@ -80,7 +80,7 @@ func (r *PostRouter) AddPostToShop(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_post path string true "ID поста" format(uuid)
-// @Success 200 "Пост успешно удален"
+// @Success 204 "Пост успешно удален"
 // @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверный магазин"
 // @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse  "Пост не найден"
@@ -107,5 +107,5 @@ func (r *PostRouter) DeletePost(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

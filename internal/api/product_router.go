@@ -89,7 +89,7 @@ func (r *ProductRouter) AddProductToShop(c *gin.Context) {
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_product path string true "ID изделия" format(uuid)
 // @Param request body reqresp.UpdateProductRequest true "Данные для обновления товара"
-// @Success 200 "Товар успешно обновлен"
+// @Success 204 "Товар успешно обновлен"
 // @Failure 400 {object} ErrorResponse  "Неверный формат данных или ID, неверный магазин"
 // @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse  "Товар не найден"
@@ -129,7 +129,7 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // DeleteProduct godoc
@@ -142,7 +142,7 @@ func (r *ProductRouter) UpdateProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param id_product path string true "ID изделия" format(uuid)
-// @Success 200 "Товар успешно удален"
+// @Success 204 "Товар успешно удален"
 // @Failure 400 {object} ErrorResponse  "Неверный формат ID, неверный магазин"
 // @Failure 401 {object} ErrorResponse  "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse  "Товар не найден"
@@ -168,5 +168,5 @@ func (r *ProductRouter) DeleteProduct(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

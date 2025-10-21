@@ -73,7 +73,7 @@ func (r *ShopRouter) AddUserShop(c *gin.Context) {
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
 // @Param request body reqresp.UpdateShopRequest true "Данные для обновления магазина"
-// @Success 200 "Магазин успешно обновлен"
+// @Success 204 "Магазин успешно обновлен"
 // @Failure 400 {object} ErrorResponse "Неверный формат ID, неверные данные запроса, неверный магазин"
 // @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse "Магазин не найден"
@@ -102,7 +102,7 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // DeleteShop godoc
@@ -114,7 +114,7 @@ func (r *ShopRouter) UpdateShop(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Bearer токен"
 // @Param id_shop path string true "ID магазина" format(uuid)
-// @Success 200 "Магазин успешно удален"
+// @Success 204 "Магазин успешно удален"
 // @Failure 400 {object} ErrorResponse "Неверный формат ID, неверный магазин"
 // @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
 // @Failure 404 {object} ErrorResponse "Магазин не найден"
@@ -138,5 +138,5 @@ func (r *ShopRouter) DeleteShop(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

@@ -80,7 +80,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Пользователь зарегистрирован"
                     },
                     "400": {
@@ -144,12 +144,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешный ответ с категориями",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.CategoryResponse"
-                            }
+                            "$ref": "#/definitions/reqresp.CategoriesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат параметров пагинации",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -188,22 +197,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный формат ID категории",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Категория не найдена",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -253,24 +259,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Список постов",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.PostResponse"
-                            }
+                            "$ref": "#/definitions/reqresp.PostsResponse"
                         }
                     },
                     "400": {
-                        "description": "Неверный формат ID магазина",
+                        "description": "Неверный формат ID магазина или параметров пагинации",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -348,24 +349,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Список товаров",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.ProductResponse"
-                            }
+                            "$ref": "#/definitions/reqresp.ProductsResponse"
                         }
                     },
                     "400": {
-                        "description": "Неверный формат параметров",
+                        "description": "Неверный формат параметров (цена, ID, пагинация)",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -421,10 +417,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/reqresp.ShopResponse"
-                            }
+                            "$ref": "#/definitions/reqresp.ShopsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат параметров пагинации или ID пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -522,22 +527,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный формат ID магазина",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Магазин не найден",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     }
                 }
@@ -586,7 +588,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Магазин успешно обновлен"
                     },
                     "400": {
@@ -650,7 +652,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Магазин успешно удален"
                     },
                     "400": {
@@ -793,7 +795,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Пост успешно удален"
                     },
                     "400": {
@@ -945,7 +947,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Товар успешно обновлен"
                     },
                     "400": {
@@ -1017,7 +1019,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Товар успешно удален"
                     },
                     "400": {
@@ -1161,7 +1163,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Успешное обновление"
                     },
                     "400": {
@@ -1242,7 +1244,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Успешное обновление"
                     },
                     "400": {
@@ -1347,6 +1349,17 @@ const docTemplate = `{
                 }
             }
         },
+        "reqresp.CategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/reqresp.CategoryResponse"
+                    }
+                }
+            }
+        },
         "reqresp.CategoryResponse": {
             "type": "object",
             "required": [
@@ -1431,6 +1444,17 @@ const docTemplate = `{
                 }
             }
         },
+        "reqresp.PostsResponse": {
+            "type": "object",
+            "properties": {
+                "post": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/reqresp.PostResponse"
+                    }
+                }
+            }
+        },
         "reqresp.ProductResponse": {
             "type": "object",
             "required": [
@@ -1471,6 +1495,17 @@ const docTemplate = `{
                 "updateTime": {
                     "type": "string",
                     "example": "2023-06-15T14:30:00Z"
+                }
+            }
+        },
+        "reqresp.ProductsResponse": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/reqresp.ProductResponse"
+                    }
                 }
             }
         },
@@ -1521,6 +1556,17 @@ const docTemplate = `{
                 "userID": {
                     "type": "string",
                     "example": "bb2e8400-e29b-41d4-a716-446655442222"
+                }
+            }
+        },
+        "reqresp.ShopsResponse": {
+            "type": "object",
+            "properties": {
+                "shops": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/reqresp.ShopResponse"
+                    }
                 }
             }
         },

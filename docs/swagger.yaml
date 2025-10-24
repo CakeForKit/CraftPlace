@@ -276,7 +276,7 @@ definitions:
     required:
     - login
     type: object
-host: localhost:8080
+host: localhost:80
 info:
   contact: {}
   description: API для платформы для мастеров ручной работы

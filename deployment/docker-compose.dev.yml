@@ -17,14 +17,24 @@ services:
       
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      # - ./nginx:/etc/nginx/:ro
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
       - ../nginx/conf.d:/etc/nginx/conf.d
-      - ../nginx/static/:/usr/share/nginx/static/:ro
-      # - ./nginx/html:/usr/share/nginx/html
+      - ../nginx/static/:/usr/share/nginx/static/
+      # - ../docs/:/usr/share/nginx/static/swagger/
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       - app_craftplace
     networks:

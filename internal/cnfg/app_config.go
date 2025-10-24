@@ -11,6 +11,7 @@ type AppConfig struct {
 	TokenSymmetricKey   string        `mapstructure:"token_symmetric_key"`
 	AccessTokenDuration time.Duration `mapstructure:"access_token_duration"`
 	Port                int           `mapstructure:"port"`
+	SwaggerPort         int           `mapstructure:"swagger_port"`
 }
 
 // v.AddConfigPath("./configs/", "app_config", "yaml")

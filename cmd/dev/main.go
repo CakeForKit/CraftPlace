@@ -1,7 +1,7 @@
 // @title CraftPlace
 // @version 1.0
 // @description API для платформы для мастеров ручной работы
-// @host localhost:8080
+// @host localhost:80
 // @BasePath /api/v1
 package main
 
@@ -69,7 +69,7 @@ func main() {
 	// -------------------
 
 	// для Swagger - НЕ ТРОГАТЬ
-	url := ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", appCnfg.Port))
+	url := ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", appCnfg.SwaggerPort))
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// ----- Repositories -----

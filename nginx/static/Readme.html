@@ -1,0 +1,99 @@
+<h2 id="название-проекта">Название проекта</h2>
+<p>Платформа для мастеров ручной работы</p>
+<h2 id="описание-идеи-проекта">Описание идеи проекта</h2>
+<p>Создать централизованную платформу, где мастера могут создать свое портфолио, а покупатели — открывать для себя уникальные товары и напрямую связываться с создателями.</p>
+<!-- ## 4. Краткий анализ аналогичных решений по минимум 3 критериям (1 таблица); -->
+<h2 id="краткое-обоснование-целесообразности-и-актуальности-проекта-1-абзац">Краткое обоснование целесообразности и актуальности проекта (1 абзац)</h2>
+<p>Создание системы учета экспонатов находящихся в небольших частных коллекциях и распространения информации об их участии в сторонних выставках. С возможностью подписки на рассылку о новых выставках.</p>
+<h2 id="краткое-описание-акторов-ролей">Краткое описание акторов (ролей)</h2>
+<p><strong>Мастер</strong> может создать свой магазин, создавать посты о своих работах, в своем портфолио указывать список своих работ(товаров) и свои соц сети для связи с покупателем.</p>
+<p><strong>Пользователь</strong>, может смотреть посты, по категориям и искать мастеров.</p>
+<h2 id="стек">Стек</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Компонент</th>
+<th>Технологии/Инструменты</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Язык</td>
+<td><strong>Go</strong></td>
+</tr>
+<tr class="even">
+<td>Контейнеризация</td>
+<td><strong>Docker, Docker Compose</strong></td>
+</tr>
+<tr class="odd">
+<td>Веб-фреймворк</td>
+<td><strong>Gin</strong></td>
+</tr>
+<tr class="even">
+<td>Построение SQL-запросов</td>
+<td><strong>Squirrel</strong></td>
+</tr>
+<tr class="odd">
+<td>Аутентификация</td>
+<td>Токены (<strong>PASETO/JWT</strong>, гибкость)</td>
+</tr>
+<tr class="even">
+<td>БД</td>
+<td><strong>PostgreSQL</strong></td>
+</tr>
+<tr class="odd">
+<td>Миграции БД</td>
+<td><strong>golang-migrate</strong></td>
+</tr>
+<tr class="even">
+<td>Frontend</td>
+<td>Web MPA (HTML-шаблоны через <strong>Go Templ</strong>)</td>
+</tr>
+<tr class="odd">
+<td>Тестирование</td>
+<td><strong>Ozontech</strong></td>
+</tr>
+<tr class="even">
+<td>Документация и тесты</td>
+<td><strong>Swagger</strong> (генерация через go-swagger)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="use-case---диаграмма">Use-Case - диаграмма</h2>
+<figure>
+<img src="img/usecase_craftPlace.png" alt="" /><figcaption>Use-Case</figcaption>
+</figure>
+<h2 id="er-диаграмма-сущностей">ER-диаграмма сущностей</h2>
+<figure>
+<img src="img/ER_craftPlace.png" alt="" /><figcaption>ER-диаграмма</figcaption>
+</figure>
+<h2 id="формализация-ключевых-бизнес-процессов-bpmn-нотация.">10. Формализация ключевых бизнес-процессов (BPMN-нотация).</h2>
+<figure>
+<img src="img/bpmn_craftPlace.png" alt="" /><figcaption>BPMN</figcaption>
+</figure>
+<h2 id="верхнеуровневое-разбиение-на-компоненты">Верхнеуровневое разбиение на компоненты</h2>
+<figure>
+<img src="img/components_craftPlace.png" alt="" /><figcaption>BPMN</figcaption>
+</figure>
+<h2 id="черновик-интерфейса">Черновик интерфейса</h2>
+<figure>
+<img src="img/interface_craftPlace.jpg" alt="" /><figcaption>interface</figcaption>
+</figure>
+<h2 id="документация-swagger">Документация (Swagger)</h2>
+<p><a href="./docs/swagger.yaml">swagger.yaml</a></p>
+<p><a href="http://localhost:8080/swagger/index.html">http://localhost:8080/swagger/index.html</a></p>
+<p>api:</p>
+<p>Исправления: user/id/login</p>
+<p>пользователь ! users/:id/login users/:id/password</p>
+<p>users/:id_user/posts</p>
+<p>shops/id_shop/products</p>
+<p>shops/id_shop/posts + передавать user id в request</p>
+<h2 id="для-delete-post">для DELETE POST</h2>
+<p>Search (no auth) GET - categories/ (список всех категорий по фильтру имени) - categories/{category_id} (список всех товаров из категории) - shops/ (список всех магазинов по фильтру имени) - shops/{shop_id}/posts/ (список всех постов данного магазина) - shops/{shop_id}/products/ (список всех товаров данного магазина)</p>
+<p>Auth POST - auth-user/login - auth-user/register</p>
+<p>User PUT - update-username - update-password</p>
+<p>GET - user-shops/ <!-- - user-shops/{id}/posts/
+- user-shops/{id}/products/ --> <!-- - user-shops/{id} --></p>
+<p>POST - user-shops (добавить магазин) - user-products/{shop_id} (добавить товар в данный магазин) - user-posts/{shop_id} (добавить пост в данный магазин)</p>
+<p>PUT - user-shops/{id} (изменить магазин) - user-products (изменить товар) - (изменить пост нельзя)</p>
+<p>DELETE - user-shops (удалить магазин) - user-products (удалить товар) - user-posts (удалить пост)</p>

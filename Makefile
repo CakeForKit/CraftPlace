@@ -22,6 +22,15 @@ run_db:
 down_db:
 	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down  postgres_craftplace pg_migrator_craftplace
 
+.PHONY: run_pgadmin
+run_pgadmin:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build pgadmin -d
+
+.PHONY: down_pgadmin
+down_pgadmin:
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down pgadmin
+
+
 .PHONY: restart_ng
 restart_ng:
 	docker compose -f $(DC_DEV) --env-file $(DB_ENV) restart nginx

@@ -25,6 +25,7 @@ services:
       - ../nginx/nginx.conf:/etc/nginx/nginx.conf
       - ../nginx/conf.d:/etc/nginx/conf.d
       - ../nginx/static/:/usr/share/nginx/static/
+      - ../Readme.md:/usr/share/nginx/Readme.md
       # - ../docs/:/usr/share/nginx/static/swagger/
     deploy:
       resources:
@@ -71,6 +72,23 @@ services:
     build:
       context: ../migrations
       dockerfile: Dockerfile
+    networks:
+      - postgres-craftplace-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    env_file: 
+      - ../configs/db_config.env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@craftplace.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-1234}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    depends_on:
+      - postgres_craftplace 
+    volumes:
+      - ../configs/pgAdmin_config.json:/pgadmin4/servers.json
     networks:
       - postgres-craftplace-net
 

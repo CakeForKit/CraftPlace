@@ -1,0 +1,15 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "CraftPlace Production DB",
+            "Group": "Servers",
+            "Host": "postgres_craftplace",
+            "Port": 5432,
+            "MaintenanceDB": "craftplace",
+            "Username": "puser",
+            "Password": "ppassword",
+            "SSLMode": "prefer",
+            "Comment": "Основная база данных CraftPlace приложения"
+        }
+    }
+}

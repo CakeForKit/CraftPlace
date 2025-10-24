@@ -20,7 +20,26 @@ run_db:
 
 .PHONY: down_db
 down_db:
-	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace pg_migrator_craftplace
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down  postgres_craftplace pg_migrator_craftplace
+
+.PHONY: run_ng
+run_ng:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build nginx 
+
+.PHONY: down_ng
+down_ng:
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v nginx
+
+
+.PHONY: run_all
+run_all:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build -d
+
+
+.PHONY: down_all
+down_all:
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v
+
 
 .PHONY: swagger
 swagger:

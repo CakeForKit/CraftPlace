@@ -4,8 +4,8 @@ services:
     build:
       context: ../
       dockerfile: ./cmd/dev/Dockerfile 
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     environment:
       - GIN_MODE=debug
       - AIR_WATCH=.
@@ -15,6 +15,21 @@ services:
     networks:
       - postgres-craftplace-net
       
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # - ./nginx:/etc/nginx/:ro
+      - ../nginx/conf.d:/etc/nginx/conf.d
+      - ../nginx/static/:/usr/share/nginx/static/:ro
+      # - ./nginx/html:/usr/share/nginx/html
+    depends_on:
+      - app_craftplace
+    networks:
+      - postgres-craftplace-net
+
   postgres_craftplace:
     container_name: postgres_craftplace
     # hostname: postgres
@@ -56,4 +71,4 @@ volumes:
 networks:
   postgres-craftplace-net:
     driver: bridge
-    name: craftplace-network
+    name: postgres-craftplace-net

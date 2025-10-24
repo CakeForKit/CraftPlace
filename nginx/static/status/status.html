@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #5a6c7d;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 300;
+            color: #6d7e8f;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 200;
+            color: #7986cb;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+        .details {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        .details h3 {
+            color: #6d7e8f;
+            margin-bottom: 15px;
+            font-weight: 400;
+            font-size: 1.2em;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 400;
+        }
+        .detail-value {
+            font-weight: 300;
+            font-family: 'Courier New', monospace;
+            color: #7986cb;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            opacity: 0.6;
+            font-size: 0.9em;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Nginx Status</h1>
+            <p>CraftPlace Application</p>
+        </div>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="active-conn">-</div>
+                <div class="stat-label">Active Connections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="requests-sec">-</div>
+                <div class="stat-label">Requests/Sec</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-req">-</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+        </div>
+
+        <div class="details">
+            <h3>Connection Details</h3>
+            <div class="detail-item">
+                <span class="detail-label">Server Time:</span>
+                <span class="detail-value" id="server-time">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Reading:</span>
+                <span class="detail-value" id="reading">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Writing:</span>
+                <span class="detail-value" id="writing">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Waiting:</span>
+                <span class="detail-value" id="waiting">-</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            Last update: <span id="last-update">-</span>
+        </div>
+    </div>
+
+    <script src="/status/status.js"></script>
+</body>
+</html>

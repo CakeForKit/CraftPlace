@@ -12,13 +12,35 @@ services:
       - APP_PORT=8080
       - DB_READONLY=true
     depends_on:
-      - postgres_craftplace
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
     command: air -c ./cmd/dev/.air.toml
     networks:
       - postgres-craftplace-net
   
+  app_craftplace_mirror:
+    container_name: app_craftplace_mirror
+    build:
+      context: ../
+      dockerfile: ./cmd/dev/Dockerfile 
+    env_file:
+      - ../configs/db_config.env
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8083
+      - APP_CONTEXT_PATH=/mirror
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres_craftplace_slave:
+        condition: service_healthy
+    command: air -c ./cmd/dev/.air.toml
+    networks:
+      - postgres-craftplace-net
+
   app_craftplace_replica1:
     container_name: app_craftplace_replica1
     build:
@@ -52,6 +74,75 @@ services:
     #   - "8082:8082"
     networks:
       - postgres-craftplace-net
+  
+  postgres_craftplace:
+    container_name: postgres_craftplace
+    image: postgres:14.8-alpine3.18
+    env_file:
+      - ../configs/db_config.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-craftplace-vol:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - postgres-craftplace-net
+  
+  postgres_craftplace_slave:
+    container_name: postgres_craftplace_slave
+    image: postgres:14.8-alpine3.18
+    env_file:
+      - ../configs/db_config.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg-craftplace-slave-vol:/var/lib/postgresql/data
+      # - ./postgres/slave:/docker-entrypoint-initdb.d
+    command: >
+      sh -c "
+        # Ждем готовности мастера
+        until pg_isready -h postgres_craftplace -U puser -d craftplace; do sleep 2; done
+        
+        # Копируем базу с мастера
+        PGPASSWORD=repl_password pg_basebackup -h postgres_craftplace -D /var/lib/postgresql/data -U repl_user -P --slot=replication_slot -R --wal-method=stream
+        
+        # Запускаем через стандартный entrypoint (он сам разберется с правами)
+        exec docker-entrypoint.sh postgres -c hot_standby=on
+      "
+    depends_on:
+      postgres_craftplace:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - postgres-craftplace-net
+
+  pg_migrator_craftplace:
+    container_name: pg_migrator_craftplace
+    depends_on:
+      postgres_craftplace:
+        condition: service_healthy  
+    env_file:
+      - ../configs/db_config.env
+    build:
+      context: ../migrations
+      dockerfile: Dockerfile
+    networks:
+      - postgres-craftplace-net
+
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -78,40 +169,6 @@ services:
     networks:
       - postgres-craftplace-net
 
-  postgres_craftplace:
-    container_name: postgres_craftplace
-    # hostname: postgres
-    image: postgres:14.8-alpine3.18
-    env_file:
-      - ../configs/db_config.env
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    volumes:
-      - pg-craftplace-vol:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 60s
-    networks:
-      - postgres-craftplace-net
-
-  pg_migrator_craftplace:
-    container_name: pg_migrator_craftplace
-    depends_on:
-      postgres_craftplace:
-        condition: service_healthy  
-    env_file:
-      - ../configs/db_config.env
-    environment:
-      - POSTGRES_HOST=postgres_craftplace
-    build:
-      context: ../migrations
-      dockerfile: Dockerfile
-    networks:
-      - postgres-craftplace-net
-
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
@@ -130,7 +187,8 @@ services:
 
 volumes:
   pg-craftplace-vol:
-    driver: local
+  pg-craftplace-slave-vol:
+  
 
 networks:
   postgres-craftplace-net:

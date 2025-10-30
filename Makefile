@@ -23,21 +23,27 @@ run_rep:
 down_rep:
 	docker compose -f $(DC_DEV) down -v app_craftplace_replica1
 
+
 .PHONY: run_db
 run_db:
-	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace pg_migrator_craftplace -d
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace -d
+	./scripts/setup-replication-manually.sh 
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build pg_migrator_craftplace -d
+
+.PHONY: run_slave
+run_slave:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace_slave -d
+
+.PHONY: down_slave
+down_slave:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace_slave
+
 
 .PHONY: down_db
 down_db:
-	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down  postgres_craftplace pg_migrator_craftplace
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace postgres_craftplace_slave pg_migrator_craftplace
 
-.PHONY: run_pgadmin
-run_pgadmin:
-	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build pgadmin -d
 
-.PHONY: down_pgadmin
-down_pgadmin:
-	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down pgadmin
 
 
 .PHONY: restart_ng
@@ -57,11 +63,18 @@ down_ng:
 run_all:
 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build -d
 
-
 .PHONY: down_all
 down_all:
 	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v
 
+
+.PHONY: run_pgadmin
+run_pgadmin:
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build pgadmin -d
+
+.PHONY: down_pgadmin
+down_pgadmin:
+	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down pgadmin
 
 .PHONY: swagger
 swagger:

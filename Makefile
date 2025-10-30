@@ -8,11 +8,20 @@ DB_ENV := ./configs/db_config.env
 run_app:
 # --no-cache
 	docker compose -v -f $(DC_DEV) build --progress=plain app_craftplace
-	docker compose -v -f $(DC_DEV) up  app_craftplace
+	docker compose -v -f $(DC_DEV) up  app_craftplace -d
 
 .PHONY: down_app
 down_app:
 	docker compose -f $(DC_DEV) down -v app_craftplace
+
+.PHONY: run_rep
+run_rep:
+	docker compose -v -f $(DC_DEV) build --progress=plain app_craftplace_replica1
+	docker compose -v -f $(DC_DEV) up  app_craftplace_replica1
+
+.PHONY: down_rep
+down_rep:
+	docker compose -f $(DC_DEV) down -v app_craftplace_replica1
 
 .PHONY: run_db
 run_db:

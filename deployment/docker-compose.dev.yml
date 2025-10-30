@@ -9,12 +9,49 @@ services:
     environment:
       - GIN_MODE=debug
       - AIR_WATCH=.
+      - APP_PORT=8080
+      - DB_READONLY=true
+    depends_on:
+      - postgres_craftplace
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
     command: air -c ./cmd/dev/.air.toml
     networks:
       - postgres-craftplace-net
-      
+  
+  app_craftplace_replica1:
+    container_name: app_craftplace_replica1
+    build:
+      context: ../
+      dockerfile: ./cmd/replica/Dockerfile 
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8081
+      - DB_READONLY=true 
+    depends_on:
+      - postgres_craftplace
+    # ports:
+    #   - "8081:8081"
+    networks:
+      - postgres-craftplace-net
+  
+  app_craftplace_replica2:
+    container_name: app_craftplace_replica2
+    build:
+      context: ../
+      dockerfile: ./cmd/replica/Dockerfile 
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8082
+      - DB_READONLY=true 
+    depends_on:
+      - postgres_craftplace
+    # ports:
+    #   - "8082:8082"
+    networks:
+      - postgres-craftplace-net
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -78,7 +115,6 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
-    restart: always
     env_file: 
       - ../configs/db_config.env
     environment:

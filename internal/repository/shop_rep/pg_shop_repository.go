@@ -16,7 +16,8 @@ import (
 )
 
 type PgShopRep struct {
-	db *sql.DB
+	db         *sql.DB
+	isReadOnly bool
 }
 
 func NewPgShopRep(
@@ -40,7 +41,7 @@ func NewPgShopRep(
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
 	db.SetConnMaxLifetime(time.Duration(dbConf.ConnMaxLifetime.Hours()))
 
-	return &PgShopRep{db: db}, nil
+	return &PgShopRep{db: db, isReadOnly: pgCreds.ReadOnly}, nil
 }
 
 func (pg *PgShopRep) parseShopsRows(rows *sql.Rows) ([]*models.Shop, error) {
@@ -135,6 +136,9 @@ func (pg *PgShopRep) GetByFilter(ctx context.Context, filterOps *models.ShopFilt
 }
 
 func (pg *PgShopRep) execChangeQuery(ctx context.Context, query sq.Sqlizer) error {
+	if pg.isReadOnly {
+		return ErrReadOnly
+	}
 	querySQL, args, err := query.ToSql()
 	if err != nil {
 		return fmt.Errorf("%w: %w", dberrors.ErrQueryBuilds, err)

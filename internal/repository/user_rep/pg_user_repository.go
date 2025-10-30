@@ -16,7 +16,8 @@ import (
 )
 
 type PgUserRep struct {
-	db *sql.DB
+	db         *sql.DB
+	isReadOnly bool
 }
 
 func NewPgUserRep(
@@ -42,7 +43,7 @@ func NewPgUserRep(
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
 	db.SetConnMaxLifetime(time.Duration(dbConf.ConnMaxLifetime.Hours()))
 
-	return &PgUserRep{db: db}, nil
+	return &PgUserRep{db: db, isReadOnly: pgCreds.ReadOnly}, nil
 }
 
 func (pg *PgUserRep) parseUsersRows(rows *sql.Rows) ([]*models.User, error) {
@@ -122,6 +123,29 @@ func (pg *PgUserRep) GetByLogin(ctx context.Context, login string) (*models.User
 	return users[0], nil
 }
 
+func (pg *PgUserRep) execChangeQuery(ctx context.Context, query sq.Sqlizer) error {
+	if pg.isReadOnly {
+		return ErrReadOnly
+	}
+	querySQL, args, err := query.ToSql()
+	if err != nil {
+		return fmt.Errorf("%w: %w", dberrors.ErrQueryBuilds, err)
+	}
+	result, err := pg.db.ExecContext(ctx, querySQL, args...)
+	if err != nil {
+		return fmt.Errorf("%w: %w", dberrors.ErrQueryExec, err)
+	}
+	// проверка количества затронутых строк
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%w: %w", dberrors.ErrRowsAffected, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("%w: no shops changed", dberrors.ErrRowsAffected)
+	}
+	return nil
+}
+
 func (pg *PgUserRep) Add(ctx context.Context, e *models.User) error {
 	baseErr := errors.New("PgUserRep.Add")
 	_, err := pg.GetByLogin(ctx, e.GetLogin())
@@ -131,24 +155,12 @@ func (pg *PgUserRep) Add(ctx context.Context, e *models.User) error {
 		return fmt.Errorf("%w %w", baseErr, err)
 	}
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err := psql.Insert("users").
+	query := psql.Insert("users").
 		Columns("id", "login", "hashed_password").
-		Values(e.GetID(), e.GetLogin(), e.GetHashedPassword()).
-		ToSql()
+		Values(e.GetID(), e.GetLogin(), e.GetHashedPassword())
+	err = pg.execChangeQuery(ctx, query)
 	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrQueryBuilds, err)
-	}
-	result, err := pg.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrQueryExec, err)
-	}
-	// проверка количества затронутых строк
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrRowsAffected, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("%w %w: no user added", baseErr, dberrors.ErrRowsAffected)
+		return fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return nil
 }
@@ -156,23 +168,11 @@ func (pg *PgUserRep) Add(ctx context.Context, e *models.User) error {
 func (pg *PgUserRep) Delete(ctx context.Context, id uuid.UUID) error {
 	baseErr := errors.New("PgUserRep.Delete")
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err := psql.Delete("Users").
-		Where(sq.Eq{"id": id}).
-		ToSql()
+	query := psql.Delete("Users").
+		Where(sq.Eq{"id": id})
+	err := pg.execChangeQuery(ctx, query)
 	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrQueryBuilds, err)
-	}
-	result, err := pg.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrQueryExec, err)
-	}
-	// проверка количества затронутых строк
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("%w %w: %w", baseErr, dberrors.ErrRowsAffected, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("%w %w: no user with id %s", baseErr, dberrors.ErrRowsAffected, id)
+		return fmt.Errorf("%w: %w", baseErr, err)
 	}
 	return nil
 }
@@ -192,24 +192,13 @@ func (pg *PgUserRep) Update(ctx context.Context,
 	if err != nil {
 		return nil, fmt.Errorf("%w funcUpdate: %w", baseErr, err)
 	}
-	query, args, err := psql.Update("users").
+	query := psql.Update("users").
 		Set("login", updatedUser.GetLogin()).
 		Set("hashed_password", updatedUser.GetHashedPassword()).
-		Where(sq.Eq{"id": id}).ToSql()
+		Where(sq.Eq{"id": id})
+	err = pg.execChangeQuery(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w: %w", baseErr, dberrors.ErrQueryBuilds, err)
-	}
-	result, err := pg.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w: %w", baseErr, dberrors.ErrQueryExec, err)
-	}
-	// проверка количества затронутых строк
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w: %w", baseErr, dberrors.ErrRowsAffected, err)
-	}
-	if rowsAffected == 0 {
-		return nil, fmt.Errorf("%w: %w: no user updated", baseErr, dberrors.ErrRowsAffected)
+		return nil, fmt.Errorf("%w %w", baseErr, err)
 	}
 	return updatedUser, nil
 }

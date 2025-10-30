@@ -22,4 +22,5 @@ var (
 	ErrProductNotFound = errors.New("the Product was not found")
 	ErrFailedToAddUser = errors.New("failed to add the Product")
 	ErrUpdateProduct   = errors.New("failed to update the Product in the repository")
+	ErrReadOnly        = errors.New("it is read only connection")
 )

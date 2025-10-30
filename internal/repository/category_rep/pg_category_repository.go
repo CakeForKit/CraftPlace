@@ -16,7 +16,8 @@ import (
 )
 
 type PgCategoryRep struct {
-	db *sql.DB
+	db         *sql.DB
+	isReadOnly bool
 }
 
 func NewPgCategoryRep(
@@ -40,7 +41,7 @@ func NewPgCategoryRep(
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
 	db.SetConnMaxLifetime(time.Duration(dbConf.ConnMaxLifetime.Hours()))
 
-	return &PgCategoryRep{db: db}, nil
+	return &PgCategoryRep{db: db, isReadOnly: pgCreds.ReadOnly}, nil
 }
 
 func (pg *PgCategoryRep) parseCategorysRows(rows *sql.Rows) ([]*models.Category, error) {
@@ -129,6 +130,9 @@ func (pg *PgCategoryRep) GetByFilter(ctx context.Context, filterOps *models.Cate
 }
 
 func (pg *PgCategoryRep) execChangeQuery(ctx context.Context, query sq.Sqlizer) error {
+	if pg.isReadOnly {
+		return ErrReadOnly
+	}
 	querySQL, args, err := query.ToSql()
 	if err != nil {
 		return fmt.Errorf("%w: %w", dberrors.ErrQueryBuilds, err)

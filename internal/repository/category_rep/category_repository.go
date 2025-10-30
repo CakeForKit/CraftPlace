@@ -21,4 +21,5 @@ var (
 	ErrCategoryNotFound = errors.New("the Category was not found")
 	ErrFailedToAddUser  = errors.New("failed to add the Category")
 	ErrUpdateCategory   = errors.New("failed to update the Category in the repository")
+	ErrReadOnly         = errors.New("it is read only connection")
 )

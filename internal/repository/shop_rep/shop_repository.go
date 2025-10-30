@@ -23,4 +23,5 @@ var (
 	ErrShopNotFound    = errors.New("the Shop was not found")
 	ErrFailedToAddUser = errors.New("failed to add the Shop")
 	ErrUpdateShop      = errors.New("failed to update the Shop in the repository")
+	ErrReadOnly        = errors.New("it is read only connection")
 )

@@ -16,7 +16,8 @@ import (
 )
 
 type PgPostRep struct {
-	db *sql.DB
+	db         *sql.DB
+	isReadOnly bool
 }
 
 func NewPgPostRep(
@@ -40,7 +41,7 @@ func NewPgPostRep(
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
 	db.SetConnMaxLifetime(time.Duration(dbConf.ConnMaxLifetime.Hours()))
 
-	return &PgPostRep{db: db}, nil
+	return &PgPostRep{db: db, isReadOnly: pgCreds.ReadOnly}, nil
 }
 
 func (pg *PgPostRep) parsePostsRows(rows *sql.Rows) ([]*models.Post, error) {
@@ -138,6 +139,9 @@ func (pg *PgPostRep) GetByFilter(ctx context.Context, filterOps *models.PostFilt
 }
 
 func (pg *PgPostRep) execChangeQuery(ctx context.Context, query sq.Sqlizer) error {
+	if pg.isReadOnly {
+		return ErrReadOnly
+	}
 	querySQL, args, err := query.ToSql()
 	if err != nil {
 		return fmt.Errorf("%w: %w", dberrors.ErrQueryBuilds, err)

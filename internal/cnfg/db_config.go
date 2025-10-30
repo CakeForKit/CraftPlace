@@ -2,6 +2,7 @@ package cnfg
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
@@ -23,6 +24,7 @@ type PostgresCredentials struct {
 	Port     int    `mapstructure:"POSTGRES_PORT"`
 	Username string `mapstructure:"POSTGRES_USER"`
 	Password string `mapstructure:"POSTGRES_PASSWORD"`
+	ReadOnly bool   `mapstructure:"DB_READONLY"`
 }
 
 // "./configs/", "app_config", "yaml"
@@ -48,6 +50,11 @@ func LoadPgCredentials(pathConfig, nameConfig, typeConfig string) (*PostgresCred
 	viper.SetConfigName(nameConfig)
 	viper.SetConfigType(typeConfig)
 	viper.AutomaticEnv()
+
+	isReadOnly, err := strconv.ParseBool(viper.GetString("DB_READONLY"))
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
+	}
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
@@ -55,5 +62,8 @@ func LoadPgCredentials(pathConfig, nameConfig, typeConfig string) (*PostgresCred
 	if err := viper.Unmarshal(config); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
+	config.ReadOnly = isReadOnly
+
+	fmt.Printf("LoadPgCredentials:\n%v\n\n", config)
 	return config, nil
 }

@@ -21,4 +21,5 @@ var (
 	ErrPostNotFound    = errors.New("the Post was not found")
 	ErrFailedToAddUser = errors.New("failed to add the Post")
 	ErrUpdatePost      = errors.New("failed to update the Post in the repository")
+	ErrReadOnly        = errors.New("it is read only connection")
 )

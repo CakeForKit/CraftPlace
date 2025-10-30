@@ -23,4 +23,5 @@ var (
 	ErrFailedToAddUser    = errors.New("failed to add the User")
 	ErrDuplicateLoginUser = errors.New("a user with this login already exists")
 	ErrUpdateUser         = errors.New("failed to update the User in the repository")
+	ErrReadOnly           = errors.New("it is read only connection")
 )

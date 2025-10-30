@@ -1,6 +1,6 @@
 FROM golang:1.25.1-alpine
 
-RUN apk add git bash && \
+RUN apk add git bash curl && \
     go install github.com/swaggo/swag/cmd/swag@latest 
 RUN go install github.com/air-verse/air@latest
 

@@ -10,3 +10,8 @@ SELECT * FROM products;
 SELECT * FROM posts;
 SELECT * FROM users;
 SELECT * FROM categories;
+
+UPDATE shops 
+SET title = 'Лавка "искусства" 1', 
+    update_time = CURRENT_TIMESTAMP 
+WHERE id = 'e855444e-26a4-47b4-b7fe-f15ff7cb552e';

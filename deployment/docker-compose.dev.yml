@@ -10,13 +10,14 @@ services:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8080
+      - APP_CONTEXT_PATH=/
       - DB_READONLY=true
     depends_on:
       pg_migrator_craftplace:
         condition: service_completed_successfully
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
-    command: air -c ./cmd/dev/.air.toml
+    command: ["sh", "-c", "INSTANCE_ID=1 air -c ./cmd/dev/.air.toml"]
     networks:
       - postgres-craftplace-net
   
@@ -24,20 +25,24 @@ services:
     container_name: app_craftplace_mirror
     build:
       context: ../
-      dockerfile: ./cmd/dev/Dockerfile 
+      dockerfile: ./cmd/mirror/Dockerfile 
+    ports:
+      - "8083:8083"
     env_file:
       - ../configs/db_config.env
     environment:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8083
-      - APP_CONTEXT_PATH=/mirror
-    ports:
-      - "8083:8083"
+      - APP_CONTEXT_PATH=/mirror/
+      - POSTGRES_HOST=postgres_craftplace_slave
+      - DB_READONLY=true
     depends_on:
       postgres_craftplace_slave:
         condition: service_healthy
-    command: air -c ./cmd/dev/.air.toml
+    volumes:
+      - ../:/app
+    command: ["sh", "-c", "INSTANCE_ID=2 air -c ./cmd/mirror/.air.toml"]
     networks:
       - postgres-craftplace-net
 
@@ -50,6 +55,7 @@ services:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8081
+      - APP_CONTEXT_PATH=/
       - DB_READONLY=true 
     depends_on:
       - postgres_craftplace
@@ -67,6 +73,7 @@ services:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8082
+      - APP_CONTEXT_PATH=/
       - DB_READONLY=true 
     depends_on:
       - postgres_craftplace
@@ -107,7 +114,6 @@ services:
       - "5433:5432"
     volumes:
       - pg-craftplace-slave-vol:/var/lib/postgresql/data
-      # - ./postgres/slave:/docker-entrypoint-initdb.d
     command: >
       sh -c "
         # Ждем готовности мастера

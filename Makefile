@@ -23,25 +23,35 @@ run_rep:
 down_rep:
 	docker compose -f $(DC_DEV) down -v app_craftplace_replica1
 
+.PHONY: run_mirror
+run_mirror:
+	docker compose -v -f $(DC_DEV) up --build app_craftplace_mirror -d
+
+.PHONY: down_mirror
+down_mirror:
+	docker compose -f $(DC_DEV) down -v app_craftplace_mirror
 
 .PHONY: run_db
 run_db:
 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace -d
 	./scripts/setup-replication-manually.sh 
 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build pg_migrator_craftplace -d
-
-.PHONY: run_slave
-run_slave:
 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace_slave -d
-
-.PHONY: down_slave
-down_slave:
-	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace_slave
-
 
 .PHONY: down_db
 down_db:
 	docker compose -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace postgres_craftplace_slave pg_migrator_craftplace
+
+
+# .PHONY: run_slave
+# run_slave:
+# 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build postgres_craftplace_slave -d
+
+# .PHONY: down_slave
+# down_slave:
+# 	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) down -v postgres_craftplace_slave
+
+
 
 
 

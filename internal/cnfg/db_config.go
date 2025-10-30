@@ -49,12 +49,7 @@ func LoadPgCredentials(pathConfig, nameConfig, typeConfig string) (*PostgresCred
 	viper.AddConfigPath(pathConfig)
 	viper.SetConfigName(nameConfig)
 	viper.SetConfigType(typeConfig)
-	viper.AutomaticEnv()
 
-	isReadOnly, err := strconv.ParseBool(viper.GetString("DB_READONLY"))
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
-	}
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
@@ -62,8 +57,18 @@ func LoadPgCredentials(pathConfig, nameConfig, typeConfig string) (*PostgresCred
 	if err := viper.Unmarshal(config); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
-	config.ReadOnly = isReadOnly
+	fmt.Printf("LoadPgCredentials before:\n%v\n\n", config)
 
-	fmt.Printf("LoadPgCredentials:\n%v\n\n", config)
+	viper.AutomaticEnv()
+	isReadOnly, err := strconv.ParseBool(viper.GetString("DB_READONLY"))
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
+	}
+	pg_host := viper.GetString("POSTGRES_HOST")
+
+	config.ReadOnly = isReadOnly
+	config.Host = pg_host
+
+	fmt.Printf("LoadPgCredentials after:\n%v\n\n", config)
 	return config, nil
 }

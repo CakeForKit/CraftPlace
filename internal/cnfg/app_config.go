@@ -13,6 +13,7 @@ type AppConfig struct {
 	AccessTokenDuration time.Duration
 	Port                int
 	SwaggerPort         int
+	ContextPath         string
 }
 
 type AppConfigFile struct {
@@ -40,11 +41,14 @@ func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
+	ContextPath := viper.GetString("APP_CONTEXT_PATH")
+
 	config := &AppConfig{
 		TokenSymmetricKey:   configRead.TokenSymmetricKey,
 		AccessTokenDuration: configRead.AccessTokenDuration,
 		Port:                appPort,
 		SwaggerPort:         configRead.SwaggerPort,
+		ContextPath:         ContextPath,
 	}
 	fmt.Printf("LoadAppConfig:\n%v\n\n", config)
 	return config, nil

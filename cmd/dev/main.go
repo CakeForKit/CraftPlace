@@ -67,11 +67,6 @@ func main() {
 		panic(fmt.Errorf("cannot load DatebaseConnConfig: %v", err))
 	}
 	// -------------------
-
-	// для Swagger - НЕ ТРОГАТЬ
-	url := ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", appCnfg.SwaggerPort))
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-
 	// ----- Repositories -----
 	ctx := context.Background()
 	userRep, err := userrep.NewPgUserRep(ctx, pgCredentials, dbConnCnfg)
@@ -116,8 +111,15 @@ func main() {
 	searcherServ := searcher.NewSearcher(categoryRep, shopRep, postRep, productRep)
 	// --------------------
 
+	contextPathGroup := engine.Group(appCnfg.ContextPath)
+	// для Swagger - НЕ ТРОГАТЬ
+	swaggerURL := fmt.Sprintf("http://localhost:%d%sswagger/doc.json", appCnfg.SwaggerPort, appCnfg.ContextPath)
+	url := ginSwagger.URL(swaggerURL)
+	fmt.Printf("SWAGGER url: %s\n\n", swaggerURL)
+	contextPathGroup.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
 	// ----- Groups -----
-	apiGroup := engine.Group("/api/v1")
+	apiGroup := contextPathGroup.Group("/api/v1")
 	usersGroup := apiGroup.Group("/")
 	usersGroup.Use(middleware.AuthMiddleware(authUserServ, authz))
 	// ------------------

@@ -53,6 +53,10 @@ func main() {
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
 
+	// Logger
+	logger := middleware.StructuredLogger("CraftPlace")
+	engine.Use(middleware.LogMiddleware(logger))
+
 	// ----- Config ------
 	appCnfg, err := cnfg.LoadAppConfig("./configs/", "app_config", "yaml")
 	if err != nil {

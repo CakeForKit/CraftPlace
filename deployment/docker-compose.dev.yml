@@ -18,6 +18,12 @@ services:
     volumes:
       - ../:/app          # Монтируем весь проект в контейнер
     command: ["sh", "-c", "INSTANCE_ID=1 air -c ./cmd/dev/.air.toml"]
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
     networks:
       - postgres-craftplace-net
   
@@ -43,6 +49,12 @@ services:
     volumes:
       - ../:/app
     command: ["sh", "-c", "INSTANCE_ID=2 air -c ./cmd/mirror/.air.toml"]
+    labels:
+      - "logging_service=app-craftplace"
+      - "logging_instance=mirror"
+      - "logging_environment=development"
+      - "logging_app=craftplace"
+      - "logging_type=mirror"
     networks:
       - postgres-craftplace-net
 
@@ -61,6 +73,12 @@ services:
       - postgres_craftplace
     # ports:
     #   - "8081:8081"
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
     networks:
       - postgres-craftplace-net
   
@@ -79,6 +97,12 @@ services:
       - postgres_craftplace
     # ports:
     #   - "8082:8082"
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
     networks:
       - postgres-craftplace-net
   
@@ -116,13 +140,8 @@ services:
       - pg-craftplace-slave-vol:/var/lib/postgresql/data
     command: >
       sh -c "
-        # Ждем готовности мастера
         until pg_isready -h postgres_craftplace -U puser -d craftplace; do sleep 2; done
-        
-        # Копируем базу с мастера
         PGPASSWORD=repl_password pg_basebackup -h postgres_craftplace -D /var/lib/postgresql/data -U repl_user -P --slot=replication_slot -R --wal-method=stream
-        
-        # Запускаем через стандартный entrypoint (он сам разберется с правами)
         exec docker-entrypoint.sh postgres -c hot_standby=on
       "
     depends_on:
@@ -175,6 +194,52 @@ services:
     networks:
       - postgres-craftplace-net
 
+  loki_craftplace:
+    container_name: loki_craftplace
+    hostname: loki_craftplace
+    image: grafana/loki:latest
+    # ports:
+    #   - 3100:3100
+    volumes:
+      - loki-vol:/loki
+    networks:
+      - postgres-craftplace-net
+
+  grafana_craftplace:
+   container_name: grafana_craftplace
+   hostname: grafana_craftplace
+   image: grafana/grafana:latest
+   ports:
+     - 3003:3000
+   environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin
+     - GF_SERVER_DOMAIN=localhost
+     - GF_SERVER_ROOT_URL=http://localhost/monitoring/
+     - GF_SERVER_SERVE_FROM_SUB_PATH=true
+     - GF_SERVER_PROTOCOL=http
+    #  - GF_SERVER_ROOT_URL=http://localhost/monitoring
+    #  - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    #  - GF_SERVER_PROTOCOL=http
+   volumes:
+     - grafana-vol:/var/lib/grafana
+   depends_on:
+     - loki_craftplace
+   networks:
+     - postgres-craftplace-net
+
+  promtail_craftplace:
+    container_name: promtail_craftplace
+    hostname: promtail
+    image: grafana/promtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../configs/promtail_config.yaml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki_craftplace
+    networks:
+      - postgres-craftplace-net
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
@@ -194,6 +259,8 @@ services:
 volumes:
   pg-craftplace-vol:
   pg-craftplace-slave-vol:
+  loki-vol:
+  grafana-vol:
   
 
 networks:

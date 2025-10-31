@@ -5,8 +5,16 @@ TEST_DB_ENV := ./configs/test_db.env
 DB_ENV := ./configs/db_config.env
 
 .PHONY: prep
-prep: run_db run_pgadmin run_app run_mirror run_ng
+prep: run_db run_pgadmin run_app run_mirror run_loki_graf run_ng 
 	
+
+.PHONY: run_loki_graf
+run_loki_graf:
+	docker compose -v -f $(DC_DEV) up --build loki_craftplace grafana_craftplace promtail_craftplace -d
+
+.PHONY: down_loki_graf
+down_loki_graf:
+	docker compose -f $(DC_DEV) down -v loki_craftplace grafana_craftplace promtail_craftplace
 
 .PHONY: run_app
 run_app:

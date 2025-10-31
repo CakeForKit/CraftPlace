@@ -1667,7 +1667,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:80",
-	BasePath:         "/mirror/api/v1",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "CraftPlace",
 	Description:      "API для платформы для мастеров ручной работы",
@@ -1679,4 +1679,6 @@ var SwaggerInfo = &swag.Spec{
 
 func init() {
 	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+}
+nfo)
 }

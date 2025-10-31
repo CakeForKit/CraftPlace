@@ -11,7 +11,7 @@ services:
       - AIR_WATCH=.
       - APP_PORT=8080
       - APP_CONTEXT_PATH=/
-      - DB_READONLY=true
+      - DB_READONLY=False
     depends_on:
       pg_migrator_craftplace:
         condition: service_completed_successfully
@@ -170,8 +170,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    depends_on:
-      - app_craftplace
+    # depends_on:
+    #   - app_craftplace
     networks:
       - postgres-craftplace-net
 

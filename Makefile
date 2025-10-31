@@ -4,6 +4,10 @@ DC_DEV := ./deployment/docker-compose.dev.yml
 TEST_DB_ENV := ./configs/test_db.env
 DB_ENV := ./configs/db_config.env
 
+.PHONY: prep
+prep: run_db run_pgadmin run_app run_mirror run_ng
+	
+
 .PHONY: run_app
 run_app:
 # --no-cache
@@ -62,7 +66,7 @@ restart_ng:
 
 .PHONY: run_ng
 run_ng:
-	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build nginx 
+	docker compose -v -f $(DC_DEV) --env-file $(DB_ENV) up --build nginx -d
 
 .PHONY: down_ng
 down_ng:

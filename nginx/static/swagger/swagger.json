@@ -7,7 +7,7 @@
         "version": "1.0"
     },
     "host": "localhost:80",
-    "basePath": "/api/v1",
+    "basePath": "/mirror/api/v1",
     "paths": {
         "/auth-user/login": {
             "post": {

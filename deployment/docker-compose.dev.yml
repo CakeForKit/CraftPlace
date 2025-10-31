@@ -51,7 +51,7 @@ services:
     command: ["sh", "-c", "INSTANCE_ID=2 air -c ./cmd/mirror/.air.toml"]
     labels:
       - "logging_service=app-craftplace"
-      - "logging_instance=mirror"
+      - "logging_instance=mirror" 
       - "logging_environment=development"
       - "logging_app=craftplace"
       - "logging_type=mirror"
@@ -198,8 +198,8 @@ services:
     container_name: loki_craftplace
     hostname: loki_craftplace
     image: grafana/loki:latest
-    # ports:
-    #   - 3100:3100
+    ports:
+      - 3100:3100
     volumes:
       - loki-vol:/loki
     networks:
@@ -209,17 +209,14 @@ services:
    container_name: grafana_craftplace
    hostname: grafana_craftplace
    image: grafana/grafana:latest
-   ports:
-     - 3003:3000
+  #  ports:
+  #    - 3003:3000
    environment:
      - GF_SECURITY_ADMIN_PASSWORD=admin
      - GF_SERVER_DOMAIN=localhost
      - GF_SERVER_ROOT_URL=http://localhost/monitoring/
      - GF_SERVER_SERVE_FROM_SUB_PATH=true
      - GF_SERVER_PROTOCOL=http
-    #  - GF_SERVER_ROOT_URL=http://localhost/monitoring
-    #  - GF_SERVER_SERVE_FROM_SUB_PATH=true
-    #  - GF_SERVER_PROTOCOL=http
    volumes:
      - grafana-vol:/var/lib/grafana
    depends_on:

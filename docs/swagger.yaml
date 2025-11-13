@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /mirror/api/v1
 definitions:
   api.ErrorResponse:
     properties:

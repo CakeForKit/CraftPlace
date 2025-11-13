@@ -2,7 +2,7 @@
 
 SELECT TABLE_NAME
 FROM INFORMATION_SCHEMA.TABLES;
-
+ 
 select * from pg_replication_slots;
 
 SELECT * FROM shops;

@@ -41,8 +41,13 @@ func main() {
 	engine.OPTIONS("/*any", func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNoContent)
 	})
-	engine.Use(gin.Logger())
+	// engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
+
+	// Logger
+	logger := middleware.StructuredLogger("CraftPlaceServ")
+	engine.Use(middleware.LogMiddleware(logger))
+	fmt.Printf("--------\n\n\n")
 
 	// ----- Config ------
 	appCnfg, err := cnfg.LoadAppConfig("./configs/", "app_config", "yaml")

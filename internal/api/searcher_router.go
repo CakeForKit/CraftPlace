@@ -30,8 +30,6 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 	gr.GET("/products", r.GetProducts)
 	gr.GET("/posts", r.GetPosts)
 
-	// gr.GET("/shops/:id_shop/posts", r.GetShopPosts)
-	// gr.GET("/shops/:id_shop/products", r.GetShopProducts)
 	return r
 }
 

@@ -8,6 +8,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -50,12 +51,17 @@ func main() {
 	engine.OPTIONS("/*any", func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNoContent)
 	})
-	engine.Use(gin.Logger())
-	engine.Use(gin.Recovery())
 
-	// Logger
-	logger := middleware.StructuredLogger("CraftPlace")
+	// // Logger
+	logger := middleware.StructuredLogger("CraftPlaceServ")
 	engine.Use(middleware.LogMiddleware(logger))
+	fmt.Printf("--------\n\n\n")
+
+	// engine.Use(gin.Logger())
+	engine.Use(gin.Recovery())
+	gin.SetMode(gin.ReleaseMode)   // или gin.DebugMode, но без стандартного логгера
+	gin.DefaultWriter = io.Discard // отключает стандартный вывод Gin
+	gin.DefaultErrorWriter = io.Discard
 
 	// ----- Config ------
 	appCnfg, err := cnfg.LoadAppConfig("./configs/", "app_config", "yaml")

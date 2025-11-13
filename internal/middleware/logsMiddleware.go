@@ -20,13 +20,14 @@ func StructuredLogger(serviceName string) *logrus.Logger {
 	logger.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: time.RFC3339Nano,
 	})
-	logger.SetOutput(os.Stdout) // лучше для Docker/Loki
+	logger.SetOutput(os.Stdout)
 	logger.SetLevel(logrus.InfoLevel)
-	logger.WithFields(logrus.Fields{
+
+	logger = logger.WithFields(logrus.Fields{
 		"service": serviceName,
 		"env":     os.Getenv("ENV"),
 		"version": os.Getenv("VERSION"),
-	})
+	}).Logger
 
 	return logger
 }
@@ -37,7 +38,6 @@ func LogMiddleware(logger *logrus.Logger) gin.HandlerFunc {
 		// ctx = context.WithValue(ctx, LoggerContextKey, logger)
 		// c.Request = c.Request.WithContext(ctx)
 		// c.Next()
-
 		start := time.Now()
 		requestLogger := logger.WithFields(logrus.Fields{
 			"request_id": c.GetHeader("X-Request-ID"),

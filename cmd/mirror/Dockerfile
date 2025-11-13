@@ -15,4 +15,4 @@ COPY ./go.* .
 RUN go mod download
 
 RUN mkdir -p tmp
-CMD ["air", "-c", "./cmd/dev/.air.toml"]
+CMD ["air", "-c", "./cmd/mirror/.air.toml"]

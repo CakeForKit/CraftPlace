@@ -5,7 +5,7 @@ TEST_DB_ENV := ./configs/test_db.env
 DB_ENV := ./configs/db_config.env
 
 .PHONY: prep
-prep: run_db run_pgadmin run_app run_mirror run_loki_graf run_ng 
+prep: run_db run_pgadmin run_app run_rep run_mirror run_loki_graf run_ng 
 	
 
 .PHONY: run_loki_graf
@@ -18,8 +18,8 @@ down_loki_graf:
 
 .PHONY: run_app
 run_app:
-# --no-cache
-	docker compose -v -f $(DC_DEV) build --progress=plain app_craftplace
+# --no-cache	--progress=plain
+	docker compose -v -f $(DC_DEV) build app_craftplace
 	docker compose -v -f $(DC_DEV) up  app_craftplace -d
 
 .PHONY: down_app
@@ -28,12 +28,11 @@ down_app:
 
 .PHONY: run_rep
 run_rep:
-	docker compose -v -f $(DC_DEV) build --progress=plain app_craftplace_replica1
-	docker compose -v -f $(DC_DEV) up  app_craftplace_replica1
+	docker compose -v -f $(DC_DEV) up --build app_craftplace_replica1 app_craftplace_replica2 -d
 
 .PHONY: down_rep
 down_rep:
-	docker compose -f $(DC_DEV) down -v app_craftplace_replica1
+	docker compose -f $(DC_DEV) down -v app_craftplace_replica1 app_craftplace_replica2
 
 .PHONY: run_mirror
 run_mirror:

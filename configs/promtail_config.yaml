@@ -27,3 +27,37 @@ scrape_configs:
         target_label: 'container'
       - action: labeldrop
         regex: '__meta_docker_container_label_.*'
+      - action: labelkeep
+        regex: '(container|service|environment|app|instance|job|filename)'
+
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            msg: msg
+            service: service
+            # env: env
+            version: version
+            request_id: request_id
+            method: method
+            path: path
+            ip: ip
+            user_agent: user_agent
+            status: status
+            duration: duration
+            duration_human: duration_human
+            bytes: bytes
+            error: error
+            # component: component
+            # log_type: log_type
+
+      - labels:
+          level:     
+          service:   
+
+      - timestamp:
+          source: time
+          format: RFC3339Nano
+
+      - output:
+          source: msg

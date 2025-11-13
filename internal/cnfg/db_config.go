@@ -58,6 +58,7 @@ func LoadPgCredentials(pathConfig, nameConfig, typeConfig string) (*PostgresCred
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
 	fmt.Printf("LoadPgCredentials before:\n%v\n\n", config)
+	fmt.Printf("--------\n")
 
 	viper.AutomaticEnv()
 	isReadOnly, err := strconv.ParseBool(viper.GetString("DB_READONLY"))

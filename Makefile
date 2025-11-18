@@ -1,12 +1,28 @@
 SCRIPTS := ./scripts
-DC_CI := ./deployment/docker-compose.ci.yml
-DC_DEV := ./deployment/docker-compose.dev.yml
+DC_CI := ./craftplace-deployment/docker-compose.ci.yml
+DC_DEV := ./craftplace-deployment/docker-compose.dev.yml
 TEST_DB_ENV := ./configs/test_db.env
 DB_ENV := ./configs/db_config.env
 
+.PHONY: gen
+gen:
+	protoc -I proto ./proto/auth_user.proto --go_out=./ --go-grpc_out=./
+
+# // run_rep
 .PHONY: prep
-prep: run_db run_pgadmin run_app run_rep run_mirror run_loki_graf run_ng 
+prep: run_db run_pgadmin serv
 	
+.PHONY: serv
+serv:
+	run_app auth_run searcher_run run_mirror run_loki_graf run_ng 
+
+.PHONY: auth_run
+auth_run:
+	docker compose -v -f $(DC_DEV) up --build auth_craftplace -d
+
+.PHONY: searcher_run
+searcher_run:
+	docker compose -v -f $(DC_DEV) up --build searcher_craftplace -d
 
 .PHONY: run_loki_graf
 run_loki_graf:

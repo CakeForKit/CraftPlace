@@ -22,7 +22,7 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 	r := SearcherRouter{
 		searcherServ: searcherServ,
 	}
-	gr := router.Group("/")
+	gr := router.Group("craftplace")
 	gr.GET("/categories", r.GetCategories)
 	gr.GET("/categories/:id_category", r.GetCategoryByID)
 	gr.GET("/shops", r.GetShops)
@@ -32,8 +32,6 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 
 	return r
 }
-
-// @Success 200 {array} reqresp.CategoryResponse
 
 // GetCategories godoc
 // @Summary Получить категории
@@ -47,7 +45,7 @@ func NewSearcherRouter(router *gin.RouterGroup, searcherServ searcher.Searcher) 
 // @Success 200 {object} reqresp.CategoriesResponse "Успешный ответ с категориями"
 // @Failure 400 {object} ErrorResponse "Неверный формат параметров пагинации"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /categories [get]
+// @Router /craftplace/categories [get]
 func (r *SearcherRouter) GetCategories(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -95,7 +93,7 @@ func (r *SearcherRouter) GetCategories(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse "Неверный формат ID категории"
 // @Failure 404 {object} ErrorResponse "Категория не найдена"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /categories/{id_category} [get]
+// @Router /craftplace/categories/{id_category} [get]
 func (r *SearcherRouter) GetCategoryByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	categoryID, err := uuid.Parse(c.Param("id_category"))
@@ -129,7 +127,7 @@ func (r *SearcherRouter) GetCategoryByID(c *gin.Context) {
 // @Success 200 {object} reqresp.ShopsResponse
 // @Failure 400 {object} ErrorResponse "Неверный формат параметров пагинации или ID пользователя"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /shops [get]
+// @Router /craftplace/shops [get]
 func (r *SearcherRouter) GetShops(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -182,7 +180,7 @@ func (r *SearcherRouter) GetShops(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse "Неверный формат ID магазина"
 // @Failure 404 {object} ErrorResponse "Магазин не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /shops/{id_shop} [get]
+// @Router /craftplace/shops/{id_shop} [get]
 func (r *SearcherRouter) GetShopByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	shopID, err := uuid.Parse(c.Param("id_shop"))
@@ -219,7 +217,7 @@ func (r *SearcherRouter) GetShopByID(c *gin.Context) {
 // @Success 200 {object} reqresp.ProductsResponse "Список товаров"
 // @Failure 400 {object} ErrorResponse "Неверный формат параметров (цена, ID, пагинация)"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /products [get]
+// @Router /craftplace/products [get]
 func (r *SearcherRouter) GetProducts(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -291,7 +289,7 @@ func (r *SearcherRouter) GetProducts(c *gin.Context) {
 // @Success 200 {object} reqresp.PostsResponse "Список постов"
 // @Failure 400 {object} ErrorResponse "Неверный формат ID магазина или параметров пагинации"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /posts [get]
+// @Router /craftplace/posts [get]
 func (r *SearcherRouter) GetPosts(c *gin.Context) {
 	ctx := c.Request.Context()
 

@@ -104,7 +104,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories": {
+        "/craftplace/categories": {
             "get": {
                 "description": "Возвращает список категорий с возможностью фильтрации",
                 "consumes": [
@@ -164,7 +164,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories/{id_category}": {
+        "/craftplace/categories/{id_category}": {
             "get": {
                 "description": "Возвращает информацию о категории по её идентификатору",
                 "consumes": [
@@ -215,7 +215,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts": {
+        "/craftplace/posts": {
             "get": {
                 "description": "Возвращает список постов с возможностью фильтрации по магазину",
                 "consumes": [
@@ -277,7 +277,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products": {
+        "/craftplace/products": {
             "get": {
                 "description": "Возвращает список товаров с возможностью фильтрации по различным параметрам",
                 "consumes": [
@@ -367,7 +367,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/shops": {
+        "/craftplace/shops": {
             "get": {
                 "description": "Возвращает список магазинов с возможностью фильтрации",
                 "consumes": [
@@ -433,7 +433,60 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/craftplace/shops/{id_shop}": {
+            "get": {
+                "description": "Возвращает информацию о магазине по его идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Поиск"
+                ],
+                "summary": "Получить магазин по ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID магазина",
+                        "name": "id_shop",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о магазине",
+                        "schema": {
+                            "$ref": "#/definitions/reqresp.ShopResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат ID магазина",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Магазин не найден",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/shops": {
             "post": {
                 "security": [
                     {
@@ -495,55 +548,6 @@ const docTemplate = `{
             }
         },
         "/shops/{id_shop}": {
-            "get": {
-                "description": "Возвращает информацию о магазине по его идентификатору",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Поиск"
-                ],
-                "summary": "Получить магазин по ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "ID магазина",
-                        "name": "id_shop",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Информация о магазине",
-                        "schema": {
-                            "$ref": "#/definitions/reqresp.ShopResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат ID магазина",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Магазин не найден",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "put": {
                 "security": [
                     {
@@ -1667,7 +1671,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:80",
-	BasePath:         "/api/v1",
+	BasePath:         "/mirror/api/v1",
 	Schemes:          []string{},
 	Title:            "CraftPlace",
 	Description:      "API для платформы для мастеров ручной работы",

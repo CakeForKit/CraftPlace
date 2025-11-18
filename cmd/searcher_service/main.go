@@ -1,0 +1,102 @@
+// @title CraftPlace
+// @version 1.0
+// @description API для платформы для мастеров ручной работы
+// @host localhost:80
+// @BasePath /api/v1
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"time"
+
+	_ "github.com/CakeForKit/CraftPlace.git/docs"
+	"github.com/CakeForKit/CraftPlace.git/internal/api"
+	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
+	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
+	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
+	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
+	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
+	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
+	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+func main() {
+	engine := gin.New()
+	// Настройка CORS
+	engine.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // Можно указать конкретные домены вместо "*"
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+	engine.OPTIONS("/*any", func(c *gin.Context) {
+		c.AbortWithStatus(http.StatusNoContent)
+	})
+	// engine.Use(gin.Logger())
+	// engine.Use(gin.Recovery())
+
+	// Logger
+	logger := middleware.StructuredLogger("CraftPlaceServ")
+	engine.Use(middleware.LogMiddleware(logger))
+	fmt.Printf("--------\n\n\n")
+
+	// ----- Config ------
+	appCnfg, err := cnfg.LoadAppConfig("./configs/", "app_config", "yaml")
+	if err != nil {
+		panic(fmt.Errorf("cannot load AppConfig: %v", err))
+	}
+	pgCredentials, err := cnfg.LoadPgCredentials("./configs/", "db_config", "env")
+	if err != nil {
+		panic(fmt.Errorf("cannot load PgCredentials: %v", err))
+	}
+	dbConnCnfg, err := cnfg.LoadDatebaseConnConfig("./configs/", "app_config", "yaml")
+	if err != nil {
+		panic(fmt.Errorf("cannot load DatebaseConnConfig: %v", err))
+	}
+	// -------------------
+	// ----- Repositories -----
+	ctx := context.Background()
+	shopRep, err := shoprep.NewPgShopRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	postRep, err := postrep.NewPgPostRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	productRep, err := productrep.NewPgProductRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	categoryRep, err := categoryrep.NewPgCategoryRep(ctx, pgCredentials, dbConnCnfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	// --------------------
+	// ----- Services -----
+	searcherServ := searcher.NewSearcher(categoryRep, shopRep, postRep, productRep)
+	// --------------------
+
+	contextPathGroup := engine.Group(appCnfg.ContextPath)
+	// для Swagger - НЕ ТРОГАТЬ
+	swaggerURL := fmt.Sprintf("http://localhost:%d%sswagger/doc.json", appCnfg.SwaggerPort, appCnfg.ContextPath)
+	url := ginSwagger.URL(swaggerURL)
+	fmt.Printf("SWAGGER url: %s\n\n", swaggerURL)
+	contextPathGroup.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
+	// ----- Groups -----
+	apiGroup := contextPathGroup.Group("/api/v1")
+	// ------------------
+	searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
+	_ = searcherRouter
+	engine.Run(fmt.Sprintf(":%d", appCnfg.Port))
+}

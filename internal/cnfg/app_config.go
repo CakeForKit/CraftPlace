@@ -14,6 +14,7 @@ type AppConfig struct {
 	Port                int
 	SwaggerPort         int
 	ContextPath         string
+	GRPCPort            int
 }
 
 type AppConfigFile struct {
@@ -41,6 +42,10 @@ func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
+	GRPCPort, err := strconv.Atoi(viper.GetString("GRPC_PORT"))
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
+	}
 	ContextPath := viper.GetString("APP_CONTEXT_PATH")
 
 	config := &AppConfig{
@@ -49,6 +54,7 @@ func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error
 		Port:                appPort,
 		SwaggerPort:         configRead.SwaggerPort,
 		ContextPath:         ContextPath,
+		GRPCPort:            GRPCPort,
 	}
 	fmt.Printf("LoadAppConfig:\n%v\n\n", config)
 	return config, nil

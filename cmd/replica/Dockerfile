@@ -1,7 +1,6 @@
 FROM golang:1.25.1-alpine
 
 RUN apk add git bash
-RUN go install github.com/air-verse/air@latest
 
 # Настраиваем окружение Go
 RUN go env -w GOPROXY=https://proxy.golang.org,direct && \

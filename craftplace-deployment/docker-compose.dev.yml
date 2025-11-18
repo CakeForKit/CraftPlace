@@ -1,0 +1,322 @@
+services:
+  auth_craftplace:
+    container_name: auth_craftplace
+    build:
+      context: ../
+      dockerfile: ./cmd/auth_service/Dockerfile 
+    ports:
+      - "8084:8084"
+      - "8085:8085"
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8084
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=False
+    depends_on:
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
+    labels:
+    - "logging_service=auth-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+
+  searcher_craftplace:
+    container_name: searcher_craftplace
+    build:
+      context: ../
+      dockerfile: ./cmd/searcher_service/Dockerfile 
+    ports:
+      - "8086:8086"
+    env_file:
+      - ../configs/db_config.env
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8086
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/
+      - POSTGRES_HOST=postgres_craftplace_slave
+      - DB_READONLY=true
+    depends_on:
+      postgres_craftplace_slave:
+        condition: service_healthy
+    labels:
+    - "logging_service=searcher-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+
+  app_craftplace:
+    container_name: app_craftplace
+    build:
+      context: ../
+      dockerfile: ./cmd/dev/Dockerfile 
+    # ports:
+    #   - "8080:8080"
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8080
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=False
+    depends_on:
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
+    volumes:
+      - ../:/app          # Монтируем весь проект в контейнер
+    command: ["sh", "-c", "INSTANCE_ID=1 air -c ./cmd/dev/.air.toml"]
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+  
+  app_craftplace_mirror:
+    container_name: app_craftplace_mirror
+    build:
+      context: ../
+      dockerfile: ./cmd/mirror/Dockerfile 
+    ports:
+      - "8083:8083"
+    # env_file:
+    #   - ../configs/db_config.env
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8083
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/mirror/
+      - DB_READONLY=False
+    depends_on:
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
+    volumes:
+      - ../:/app
+    command: ["sh", "-c", "INSTANCE_ID=2 air -c ./cmd/mirror/.air.toml"]
+    labels:
+      - "logging_service=app-craftplace"
+      - "logging_instance=mirror" 
+      - "logging_environment=development"
+      - "logging_app=craftplace"
+      - "logging_type=mirror"
+    networks:
+      - postgres-craftplace-net
+
+  app_craftplace_replica1:
+    container_name: app_craftplace_replica1
+    build:
+      context: ../
+      dockerfile: ./cmd/replica/Dockerfile 
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8081
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=true 
+    depends_on:
+      - postgres_craftplace
+    # ports:
+    #   - "8081:8081"
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+  
+  app_craftplace_replica2:
+    container_name: app_craftplace_replica2
+    build:
+      context: ../
+      dockerfile: ./cmd/replica/Dockerfile 
+    environment:
+      - GIN_MODE=debug
+      - AIR_WATCH=.
+      - APP_PORT=8082
+      - GRPC_PORT=8085
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=true 
+    depends_on:
+      - postgres_craftplace
+    # ports:
+    #   - "8082:8082"
+    labels:
+    - "logging_service=app-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+  
+  postgres_craftplace:
+    container_name: postgres_craftplace
+    image: postgres:14.8-alpine3.18
+    env_file:
+      - ../configs/db_config.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-craftplace-vol:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - postgres-craftplace-net
+  
+  postgres_craftplace_slave:
+    container_name: postgres_craftplace_slave
+    image: postgres:14.8-alpine3.18
+    env_file:
+      - ../configs/db_config.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg-craftplace-slave-vol:/var/lib/postgresql/data
+    command: >
+      sh -c "
+        until pg_isready -h postgres_craftplace -U puser -d craftplace; do sleep 2; done
+        PGPASSWORD=repl_password pg_basebackup -h postgres_craftplace -D /var/lib/postgresql/data -U repl_user -P --slot=replication_slot -R --wal-method=stream
+        exec docker-entrypoint.sh postgres -c hot_standby=on
+      "
+    depends_on:
+      postgres_craftplace:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - postgres-craftplace-net
+
+  pg_migrator_craftplace:
+    container_name: pg_migrator_craftplace
+    depends_on:
+      postgres_craftplace:
+        condition: service_healthy  
+    env_file:
+      - ../configs/db_config.env
+    build:
+      context: ../migrations
+      dockerfile: Dockerfile
+    networks:
+      - postgres-craftplace-net
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/conf.d:/etc/nginx/conf.d
+      - ../nginx/static/:/usr/share/nginx/static/
+      - ../Readme.md:/usr/share/nginx/Readme.md
+      # - ../docs/:/usr/share/nginx/static/swagger/
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # depends_on:
+    #   - app_craftplace
+    networks:
+      - postgres-craftplace-net
+
+  loki_craftplace:
+    container_name: loki_craftplace
+    hostname: loki_craftplace
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    volumes:
+      - loki-vol:/loki
+    networks:
+      - postgres-craftplace-net
+
+  grafana_craftplace:
+   container_name: grafana_craftplace
+   hostname: grafana_craftplace
+   image: grafana/grafana:latest
+  #  ports:
+  #    - 3003:3000
+   environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin
+     - GF_SERVER_DOMAIN=localhost
+     - GF_SERVER_ROOT_URL=http://localhost/monitoring/
+     - GF_SERVER_SERVE_FROM_SUB_PATH=true
+     - GF_SERVER_PROTOCOL=http
+   volumes:
+     - grafana-vol:/var/lib/grafana
+   depends_on:
+     - loki_craftplace
+   networks:
+     - postgres-craftplace-net
+
+  promtail_craftplace:
+    container_name: promtail_craftplace
+    hostname: promtail
+    image: grafana/promtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../configs/promtail_config.yaml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki_craftplace
+    networks:
+      - postgres-craftplace-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    env_file: 
+      - ../configs/db_config.env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@craftplace.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-1234}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    depends_on:
+      - postgres_craftplace 
+    volumes:
+      - ../configs/pgAdmin_config.json:/pgadmin4/servers.json
+    networks:
+      - postgres-craftplace-net
+
+volumes:
+  pg-craftplace-vol:
+  pg-craftplace-slave-vol:
+  loki-vol:
+  grafana-vol:
+  
+
+networks:
+  postgres-craftplace-net:
+    driver: bridge
+    name: postgres-craftplace-net

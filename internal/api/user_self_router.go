@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	reqresp "github.com/CakeForKit/CraftPlace.git/internal/models/req_resp"
@@ -50,7 +49,6 @@ func NewUserSelfRouter(
 // @Failure 500 {object} ErrorResponse  "Внутренняя ошибка сервера"
 // @Router /users/{id_user} [get]
 func (r *UserSelfRouter) GetUserByID(c *gin.Context) {
-	fmt.Print("UserSelfRouter GetUserByID\n\n\n")
 	ctx := c.Request.Context()
 	userID, err := uuid.Parse(c.Param("id_user"))
 	if err != nil {

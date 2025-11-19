@@ -115,7 +115,8 @@ func main() {
 	// --------------------
 
 	// authUserServ := authuser.NewAuthUser(tokenMaker, hasher, appCnfg, userRep)
-	authUserServ, err := authgrpc.NewClient("auth_craftplace:8085")
+	auth_path := "nginx:50000"
+	authUserServ, err := authgrpc.NewClient(auth_path)
 	if err != nil {
 		log.Fatalf("Failed to connect to auth service: %v", err)
 	}

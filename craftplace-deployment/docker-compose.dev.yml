@@ -4,13 +4,13 @@ services:
     build:
       context: ../
       dockerfile: ./cmd/auth_service/Dockerfile 
-    ports:
-      - "8084:8084"
-      - "8085:8085"
+    # ports:
+    #   - "8084:8084"
+    #   - "50004:50004"
     environment:
       - GIN_MODE=debug
       - APP_PORT=8084
-      - GRPC_PORT=8085
+      - GRPC_PORT=50004
       - APP_CONTEXT_PATH=/
       - DB_READONLY=False
     depends_on:
@@ -25,19 +25,124 @@ services:
     networks:
       - postgres-craftplace-net
 
+  auth_craftplace_replica1:
+    container_name: auth_craftplace_replica1
+    build:
+      context: ../
+      dockerfile: ./cmd/auth_service/Dockerfile 
+    # ports:
+    #   - "8085:8085"
+    #   - "50005:50005"
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8085
+      - GRPC_PORT=50005
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=False
+    depends_on:
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
+    labels:
+    - "logging_service=auth-craftplace"
+    - "logging_instance=replica1"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+  
+  auth_craftplace_replica2:
+    container_name: auth_craftplace_replica2
+    build:
+      context: ../
+      dockerfile: ./cmd/auth_service/Dockerfile 
+    # ports:
+    #   - "8086:8086"
+    #   - "50006:50006"
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8086
+      - GRPC_PORT=50006
+      - APP_CONTEXT_PATH=/
+      - DB_READONLY=False
+    depends_on:
+      pg_migrator_craftplace:
+        condition: service_completed_successfully
+    labels:
+    - "logging_service=auth-craftplace"
+    - "logging_instance=replica2"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+
   searcher_craftplace:
     container_name: searcher_craftplace
     build:
       context: ../
       dockerfile: ./cmd/searcher_service/Dockerfile 
-    ports:
-      - "8086:8086"
+    # ports:
+    #   - "8087:8087"
     env_file:
       - ../configs/db_config.env
     environment:
       - GIN_MODE=debug
-      - APP_PORT=8086
-      - GRPC_PORT=8085
+      - APP_PORT=8087
+      - APP_CONTEXT_PATH=/
+      - POSTGRES_HOST=postgres_craftplace_slave
+      - DB_READONLY=true
+    depends_on:
+      postgres_craftplace_slave:
+        condition: service_healthy
+    labels:
+    - "logging_service=searcher-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+
+  searcher_craftplace_replica1:
+    container_name: searcher_craftplace_replica1
+    build:
+      context: ../
+      dockerfile: ./cmd/searcher_service/Dockerfile 
+    # ports:
+    #   - "8088:8088"
+    env_file:
+      - ../configs/db_config.env
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8088
+      - APP_CONTEXT_PATH=/
+      - POSTGRES_HOST=postgres_craftplace_slave
+      - DB_READONLY=true
+    depends_on:
+      postgres_craftplace_slave:
+        condition: service_healthy
+    labels:
+    - "logging_service=searcher-craftplace"
+    - "logging_instance=primary"
+    - "logging_environment=development"
+    - "logging_app=craftplace"
+    - "logging_type=master"
+    networks:
+      - postgres-craftplace-net
+
+  searcher_craftplace_replica2:
+    container_name: searcher_craftplace_replica2
+    build:
+      context: ../
+      dockerfile: ./cmd/searcher_service/Dockerfile 
+    # ports:
+    #   - "8089:8089"
+    env_file:
+      - ../configs/db_config.env
+    environment:
+      - GIN_MODE=debug
+      - APP_PORT=8087
       - APP_CONTEXT_PATH=/
       - POSTGRES_HOST=postgres_craftplace_slave
       - DB_READONLY=true
@@ -64,7 +169,6 @@ services:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8080
-      - GRPC_PORT=8085
       - APP_CONTEXT_PATH=/
       - DB_READONLY=False
     depends_on:
@@ -87,15 +191,14 @@ services:
     build:
       context: ../
       dockerfile: ./cmd/mirror/Dockerfile 
-    ports:
-      - "8083:8083"
+    # ports:
+    #   - "8083:8083"
     # env_file:
     #   - ../configs/db_config.env
     environment:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8083
-      - GRPC_PORT=8085
       - APP_CONTEXT_PATH=/mirror/
       - DB_READONLY=False
     depends_on:
@@ -121,7 +224,6 @@ services:
     environment:
       - GIN_MODE=debug
       - APP_PORT=8081
-      - GRPC_PORT=8085
       - APP_CONTEXT_PATH=/
       - DB_READONLY=true 
     depends_on:
@@ -146,7 +248,6 @@ services:
       - GIN_MODE=debug
       - AIR_WATCH=.
       - APP_PORT=8082
-      - GRPC_PORT=8085
       - APP_CONTEXT_PATH=/
       - DB_READONLY=true 
     depends_on:
@@ -235,7 +336,6 @@ services:
       - ../nginx/conf.d:/etc/nginx/conf.d
       - ../nginx/static/:/usr/share/nginx/static/
       - ../Readme.md:/usr/share/nginx/Readme.md
-      # - ../docs/:/usr/share/nginx/static/swagger/
     deploy:
       resources:
         limits:

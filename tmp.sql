@@ -15,7 +15,7 @@ select * from pg_roles;
 SELECT * FROM shops;
 SELECT * FROM products;
 SELECT * FROM posts;
-SELECT * FROM users;
+SELECT * FROM users WHERE login = 'ulogin';
 SELECT * FROM categories;
 
 UPDATE shops 

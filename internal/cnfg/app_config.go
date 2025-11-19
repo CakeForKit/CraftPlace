@@ -23,6 +23,16 @@ type AppConfigFile struct {
 	SwaggerPort         int           `mapstructure:"swagger_port"`
 }
 
+func LoadGRPCConfig() (GRPCPort int, err error) {
+	viper.AutomaticEnv() // Автоматически считывать все переменные окружения
+	GRPCPort, err = strconv.Atoi(viper.GetString("GRPC_PORT"))
+	if err != nil {
+		return 0, fmt.Errorf("%w: %v", ErrConfigRead, err)
+	}
+	fmt.Printf("GRPCPort = %d\n", GRPCPort)
+	return
+}
+
 // v.AddConfigPath("./configs/", "app_config", "yaml")
 func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error) {
 	configRead := &AppConfigFile{}
@@ -42,10 +52,7 @@ func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
 	}
-	GRPCPort, err := strconv.Atoi(viper.GetString("GRPC_PORT"))
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrConfigRead, err)
-	}
+
 	ContextPath := viper.GetString("APP_CONTEXT_PATH")
 
 	config := &AppConfig{
@@ -54,7 +61,6 @@ func LoadAppConfig(pathConfig, nameConfig, typeConfig string) (*AppConfig, error
 		Port:                appPort,
 		SwaggerPort:         configRead.SwaggerPort,
 		ContextPath:         ContextPath,
-		GRPCPort:            GRPCPort,
 	}
 	fmt.Printf("LoadAppConfig:\n%v\n\n", config)
 	return config, nil

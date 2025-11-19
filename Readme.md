@@ -50,6 +50,8 @@
 
 [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
 
+Loki: http://loki_craftplace:3100
+
 api:
 
 Исправления:

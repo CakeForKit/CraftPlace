@@ -8,21 +8,24 @@ DB_ENV := ./configs/db_config.env
 gen:
 	protoc -I proto ./proto/auth_user.proto --go_out=./ --go-grpc_out=./
 
-# // run_rep
 .PHONY: prep
 prep: run_db run_pgadmin serv
 	
 .PHONY: serv
-serv:
-	run_app auth_run searcher_run run_mirror run_loki_graf run_ng 
+serv: app_run auth_run searcher_run run_mirror run_loki_graf run_ng 
+
+.PHONY: app_run
+app_run:
+	docker compose -v -f $(DC_DEV) up --build app_craftplace app_craftplace_replica1 app_craftplace_replica2 -d
+
 
 .PHONY: auth_run
 auth_run:
-	docker compose -v -f $(DC_DEV) up --build auth_craftplace -d
+	docker compose -v -f $(DC_DEV) up --build auth_craftplace auth_craftplace_replica1 auth_craftplace_replica2 -d
 
 .PHONY: searcher_run
 searcher_run:
-	docker compose -v -f $(DC_DEV) up --build searcher_craftplace -d
+	docker compose -v -f $(DC_DEV) up --build searcher_craftplace searcher_craftplace_replica1 searcher_craftplace_replica2 -d
 
 .PHONY: run_loki_graf
 run_loki_graf:
@@ -116,7 +119,13 @@ down_pgadmin:
 .PHONY: swagger
 swagger:
 	swag init -g ./cmd/dev/main.go --output ./docs
+	swag init -g ./cmd/mirror/main.go --output ./docs_mirror
 
+.PHONY: docs_clear
+docs_clear:
+	sudo rm -rf ./docs/*
+	sudo rm -rf ./tmp/*
+	make swagger
 
 # ---- Allure -----
 ALLURE_OUTPUT_PATH := $(shell pwd)

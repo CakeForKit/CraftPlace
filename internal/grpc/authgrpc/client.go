@@ -18,6 +18,7 @@ type Client struct {
 }
 
 func NewClient(addr string) (*Client, error) {
+	fmt.Printf("grpc client addr: %s\n", addr)
 	maxMsgSize := 1024 * 1024 * 100 // 100 MB
 	conn, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -61,7 +62,7 @@ func (c *Client) RegisterUser(ctx context.Context, rur models.RegisterUserReques
 }
 
 func (c *Client) VerifyByToken(token string) (*tokenmaker.Payload, error) {
-	fmt.Printf("VerifyByToken: \n\n")
+	fmt.Printf("Client VerifyByToken: \n\n")
 	resp, err := c.client.VerifyToken(context.Background(), &auth.VerifyTokenRequest{
 		Token: token,
 	})

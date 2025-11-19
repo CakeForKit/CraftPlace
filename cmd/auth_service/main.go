@@ -19,6 +19,7 @@ import (
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/grpc/authgrpc"
+	"github.com/CakeForKit/CraftPlace.git/internal/grpc/loggergrpc"
 	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
 	userrep "github.com/CakeForKit/CraftPlace.git/internal/repository/user_rep"
 	authz "github.com/CakeForKit/CraftPlace.git/internal/services/auth/authZ"
@@ -46,6 +47,10 @@ func main() {
 	dbConnCnfg, err := cnfg.LoadDatebaseConnConfig("./configs/", "app_config", "yaml")
 	if err != nil {
 		panic(fmt.Errorf("cannot load DatebaseConnConfig: %v", err))
+	}
+	GRPCPort, err := cnfg.LoadGRPCConfig()
+	if err != nil {
+		panic(fmt.Errorf("cannot load GRPCPort: %v", err))
 	}
 	// -------------------
 
@@ -78,8 +83,8 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	// Запускаем gRPC и HTTP серверы в отдельных горутинах
-	fmt.Printf("GRPC linstening on %s\n", fmt.Sprintf(":%d", appCnfg.GRPCPort))
-	grpcServer := startGRPCServer(authUserServ, fmt.Sprintf(":%d", appCnfg.GRPCPort))
+	fmt.Printf("GRPC linstening on %s\n", fmt.Sprintf(":%d", GRPCPort))
+	grpcServer := startGRPCServer(authUserServ, fmt.Sprintf(":%d", GRPCPort))
 	httpServer := startHTTPServer(authUserServ, authz, appCnfg)
 
 	// Ожидаем сигнал завершения
@@ -100,14 +105,17 @@ func main() {
 }
 
 func startGRPCServer(authService authuser.AuthUser, grpcPort string) *grpc.Server {
+	logger := middleware.StructuredLogger("CraftPlaceServ")
 	maxMsgSize := 1024 * 1024 * 100 // 100 MB
 	grpcServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(maxMsgSize),
 		grpc.MaxSendMsgSize(maxMsgSize),
+		grpc.ChainUnaryInterceptor(
+			loggergrpc.GRPCLoggingInterceptor(logger),
+		),
 	)
 	authGrpcServer := authgrpc.NewServer(authService)
 
-	// Регистрация сервиса (нужно импортировать ваш proto package)
 	auth.RegisterAuthServiceServer(grpcServer, authGrpcServer)
 
 	go func() {

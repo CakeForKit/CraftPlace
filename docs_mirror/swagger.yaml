@@ -1,0 +1,1126 @@
+basePath: /mirror/api/v1
+definitions:
+  api.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  reqresp.AddPostRequest:
+    properties:
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+    required:
+    - description
+    type: object
+  reqresp.AddProductRequest:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 100
+        minimum: 0
+        type: integer
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Звезды
+        maxLength: 255
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - title
+    type: object
+  reqresp.AddShopRequest:
+    properties:
+      description:
+        example: Магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Звезды
+        maxLength: 255
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  reqresp.CategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/reqresp.CategoryResponse'
+        type: array
+    type: object
+  reqresp.CategoryResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      page:
+        example: 1
+        type: integer
+      size:
+        example: 20
+        type: integer
+      title:
+        example: Eco
+        type: string
+    required:
+    - description
+    type: object
+  reqresp.LoginUserRequest:
+    properties:
+      login:
+        example: ulogin
+        maxLength: 50
+        minLength: 4
+        type: string
+      password:
+        example: "12345678"
+        minLength: 4
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  reqresp.LoginUserResponse:
+    properties:
+      access_token:
+        example: 7249ede8-5083-4bd6-ad09-0b5fa3c5f2de
+        type: string
+    type: object
+  reqresp.PostResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      timePublication:
+        example: "2023-06-15T10:00:00Z"
+        type: string
+    required:
+    - description
+    - shopID
+    type: object
+  reqresp.PostsResponse:
+    properties:
+      post:
+        items:
+          $ref: '#/definitions/reqresp.PostResponse'
+        type: array
+    type: object
+  reqresp.ProductResponse:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 200
+        minimum: 0
+        type: integer
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      shopID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Eco
+        type: string
+      updateTime:
+        example: "2023-06-15T14:30:00Z"
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - shopID
+    type: object
+  reqresp.ProductsResponse:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/reqresp.ProductResponse'
+        type: array
+    type: object
+  reqresp.RegisterUserRequest:
+    properties:
+      login:
+        example: ulogin
+        maxLength: 50
+        minLength: 4
+        type: string
+      password:
+        example: "12345678"
+        minLength: 4
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  reqresp.ShopResponse:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      id_shop:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+      title:
+        example: Eco
+        type: string
+      updateTime:
+        example: "2023-06-15T14:30:00Z"
+        type: string
+      userID:
+        example: bb2e8400-e29b-41d4-a716-446655442222
+        type: string
+    required:
+    - description
+    - userID
+    type: object
+  reqresp.ShopsResponse:
+    properties:
+      shops:
+        items:
+          $ref: '#/definitions/reqresp.ShopResponse'
+        type: array
+    type: object
+  reqresp.UpdateLoginRequest:
+    properties:
+      login:
+        example: uname
+        maxLength: 50
+        type: string
+    required:
+    - login
+    type: object
+  reqresp.UpdateProductRequest:
+    properties:
+      categoryIDs:
+        items:
+          type: string
+        type: array
+      cost:
+        example: 200
+        minimum: 0
+        type: integer
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Лучшие звезды
+        maxLength: 255
+        type: string
+    required:
+    - categoryIDs
+    - cost
+    - description
+    - title
+    type: object
+  reqresp.UpdateShopRequest:
+    properties:
+      description:
+        example: Лучший магазин сережек
+        maxLength: 255
+        type: string
+      title:
+        example: Лучшие звезды
+        maxLength: 255
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  reqresp.UpdateUserPasswordRequest:
+    properties:
+      password:
+        example: "12345678"
+        minLength: 4
+        type: string
+    required:
+    - password
+    type: object
+  reqresp.UserResponse:
+    properties:
+      login:
+        example: uname
+        maxLength: 50
+        type: string
+    required:
+    - login
+    type: object
+host: localhost:80
+info:
+  contact: {}
+  description: API для платформы для мастеров ручной работы
+  title: CraftPlace
+  version: "1.0"
+paths:
+  /auth-user/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и возвращает токен доступа
+      parameters:
+      - description: Учетные данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.LoginUserRequest'
+      responses:
+        "200":
+          description: Пользователь успешно аутентифицирован
+          schema:
+            $ref: '#/definitions/reqresp.LoginUserResponse'
+        "400":
+          description: Неверные входные параметры
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Ошибка аутентификации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Вход пользователя
+      tags:
+      - аутентификация
+  /auth-user/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.RegisterUserRequest'
+      responses:
+        "204":
+          description: Пользователь зарегистрирован
+        "400":
+          description: Неверные входные параметры
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Ошибка аутентификации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Попытка повторной регистрации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - аутентификация
+  /craftplace/categories:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список категорий с возможностью фильтрации
+      parameters:
+      - description: Фильтр по названию категории
+        in: query
+        name: title
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ с категориями
+          schema:
+            $ref: '#/definitions/reqresp.CategoriesResponse'
+        "400":
+          description: Неверный формат параметров пагинации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить категории
+      tags:
+      - Поиск
+  /craftplace/categories/{id_category}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о категории по её идентификатору
+      parameters:
+      - description: ID категории
+        format: uuid
+        in: path
+        name: id_category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о категории
+          schema:
+            $ref: '#/definitions/reqresp.CategoryResponse'
+        "400":
+          description: Неверный формат ID категории
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Категория не найдена
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить категорию по ID
+      tags:
+      - Поиск
+  /craftplace/posts:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список постов с возможностью фильтрации по магазину
+      parameters:
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID магазина
+        format: uuid
+        in: query
+        name: id_shop
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список постов
+          schema:
+            $ref: '#/definitions/reqresp.PostsResponse'
+        "400":
+          description: Неверный формат ID магазина или параметров пагинации
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить посты
+      tags:
+      - Поиск
+  /craftplace/products:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список товаров с возможностью фильтрации по различным
+        параметрам
+      parameters:
+      - description: Фильтр по названию товара
+        in: query
+        name: title
+        type: string
+      - default: 0
+        description: Минимальная цена товара
+        in: query
+        name: min_cost
+        type: integer
+      - default: 100000
+        description: Максимальная цена товара
+        in: query
+        name: max_cost
+        type: integer
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID магазина
+        format: uuid
+        in: query
+        name: id_shop
+        type: string
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID категории
+        format: uuid
+        in: query
+        name: id_category
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список товаров
+          schema:
+            $ref: '#/definitions/reqresp.ProductsResponse'
+        "400":
+          description: Неверный формат параметров (цена, ID, пагинация)
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить товары
+      tags:
+      - Поиск
+  /craftplace/shops:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список магазинов с возможностью фильтрации
+      parameters:
+      - description: Фильтр по названию магазина
+        in: query
+        name: title
+        type: string
+      - default: 00000000-0000-0000-0000-000000000000
+        description: Фильтр по ID пользователя
+        format: uuid
+        in: query
+        name: id_user
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reqresp.ShopsResponse'
+        "400":
+          description: Неверный формат параметров пагинации или ID пользователя
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить магазины
+      tags:
+      - Поиск
+  /craftplace/shops/{id_shop}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о магазине по его идентификатору
+      parameters:
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о магазине
+          schema:
+            $ref: '#/definitions/reqresp.ShopResponse'
+        "400":
+          description: Неверный формат ID магазина
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить магазин по ID
+      tags:
+      - Поиск
+  /shops:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый магазин для текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные нового магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddShopRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Магазин успешно создан
+        "400":
+          description: Неверные данные запроса, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить магазин
+      tags:
+      - Магазины
+  /shops/{id_shop}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Магазин успешно удален
+        "400":
+          description: Неверный формат ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить магазин
+      tags:
+      - Магазины
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные указанного магазина пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные для обновления магазина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateShopRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Магазин успешно обновлен
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить магазин
+      tags:
+      - Магазины
+  /shops/{id_shop}/posts:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый пост в указанный магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные нового поста
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddPostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пост успешно добавлен
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить пост в магазин
+      tags:
+      - Посты
+  /shops/{id_shop}/posts/{id_post}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет пост пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: ID поста
+        format: uuid
+        in: path
+        name: id_post
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Пост успешно удален
+        "400":
+          description: Неверный формат ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пост не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить пост
+      tags:
+      - Посты
+  /shops/{id_shop}/products:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый товар в указанный магазин пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: Данные нового товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.AddProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Товар успешно добавлен
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавить товар в магазин
+      tags:
+      - Изделия
+  /shops/{id_shop}/products/{id_product}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет товар пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: ID изделия
+        format: uuid
+        in: path
+        name: id_product
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Товар успешно удален
+        "400":
+          description: Неверный формат ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Товар не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить товар
+      tags:
+      - Изделия
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные товара пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      - description: ID изделия
+        format: uuid
+        in: path
+        name: id_product
+        required: true
+        type: string
+      - description: Данные для обновления товара
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Товар успешно обновлен
+        "400":
+          description: Неверный формат данных или ID, неверный магазин
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Товар не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить товар
+      tags:
+      - Изделия
+  /users/{id_user}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о пользователе по его идентификатору
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о пользователе
+          schema:
+            $ref: '#/definitions/reqresp.UserResponse'
+        "400":
+          description: Неверный формат ID пользователя, или неверный ID пользователя
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить пользователя по ID
+      tags:
+      - Пользователь
+  /users/{id_user}/login:
+    patch:
+      consumes:
+      - application/json
+      description: Изменяет логин текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
+        required: true
+        type: string
+      - description: Данные для обновления логина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешное обновление
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный пользователь
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Логин уже занят
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить логин пользователя
+      tags:
+      - Пользователь
+  /users/{id_user}/password:
+    patch:
+      consumes:
+      - application/json
+      description: Изменяет пароль текущего авторизованного пользователя
+      parameters:
+      - description: Bearer токен
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID пользователя
+        format: uuid
+        in: path
+        name: id_user
+        required: true
+        type: string
+      - description: Данные для обновления пароля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reqresp.UpdateUserPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешное обновление
+        "400":
+          description: Неверный формат ID, неверные данные запроса, неверный пользователь
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить пароль пользователя
+      tags:
+      - Пользователь
+swagger: "2.0"

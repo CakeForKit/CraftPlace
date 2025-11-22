@@ -4,31 +4,15 @@
 ## Описание идеи проекта
 Создать централизованную платформу, где мастера могут создать свое портфолио, а покупатели — открывать для себя уникальные товары и напрямую связываться с создателями.
 
-<!-- ## 4. Краткий анализ аналогичных решений по минимум 3 критериям (1 таблица); -->
-
-
-## Краткое обоснование целесообразности и актуальности проекта (1 абзац)
-Создание системы учета экспонатов находящихся в небольших частных коллекциях и распространения информации об их участии в сторонних выставках. С возможностью подписки на рассылку о новых выставках. 
-
-## Краткое описание акторов (ролей)
+## Описание акторов (ролей)
 
 **Мастер** может создать свой магазин, создавать посты о своих работах, в своем портфолио указывать список своих работ(товаров) и свои соц сети для связи с покупателем.
 
 **Пользователь**, может смотреть посты, по категориям и искать мастеров.
 
 ## Стек
- | Компонент               | Технологии/Инструменты         |
-|-------------------------|--------------------------------|
-| Язык                    | **Go**                             |
-| Контейнеризация         | **Docker, Docker Compose**         |
-| Веб-фреймворк           | **Gin**                            |
-| Построение SQL-запросов | **Squirrel**                       |
-| Аутентификация          | Токены (**PASETO/JWT**, гибкость)  |
-| БД                      | **PostgreSQL**                     |
-| Миграции БД             | **golang-migrate** |
-| Frontend                | Web MPA (HTML-шаблоны через **Go Templ**) |
-| Тестирование            | **Ozontech**                       |
-| Документация и тесты    | **Swagger** (генерация через go-swagger) |
+Docker Compose, Nginx, gRPC, REST API, Go, JWT, Swagger, Postgres
+
 
 ## Use-Case - диаграмма
 ![Use-Case](img/usecase_craftPlace.png)
@@ -48,72 +32,36 @@
 ## Документация (Swagger)
 [swagger.yaml](./docs/swagger.yaml)
 
-[http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
+[http://localhost/swagger/index.html](http://localhost/swagger/index.html)
 
 Loki: http://loki_craftplace:3100
 
-api:
-
-Исправления:
-user/id/login
-
-
-пользователь
-! users/:id/login
-users/:id/password
-
-users/:id_user/posts
-
-shops/id_shop/products
-
-shops/id_shop/posts + передавать user id в request
-
-для DELETE POST
------------------
 
 
 
+# Nginx Configuration Paths for README.md
 
-Search (no auth)
-GET
-- categories/   (список всех категорий по фильтру имени)
-- categories/{category_id}   (список всех товаров из категории)
-- shops/    (список всех магазинов по фильтру имени)
-- shops/{shop_id}/posts/ (список всех постов данного магазина)
--  shops/{shop_id}/products/ (список всех товаров данного магазина)
+## Основные маршруты приложения
 
-Auth
-POST
-- auth-user/login
-- auth-user/register
+### 📍 Статические файлы и основной интерфейс
+- **`/`** - Главная страница (статический контент)
+- **`/status`** - Страница статуса сервиса
+- **`/documentation`** - Документация проекта
+- **`/managment`** - Панель управления
 
-User
-PUT
-- update-username
-- update-password
-
-GET
-- user-shops/
-<!-- - user-shops/{id}/posts/
-- user-shops/{id}/products/ -->
-<!-- - user-shops/{id} -->
-
-POST
-- user-shops (добавить магазин)
-- user-products/{shop_id} (добавить товар в данный магазин)
-- user-posts/{shop_id} (добавить пост в данный магазин)
-
-PUT
-- user-shops/{id} (изменить магазин)
-- user-products (изменить товар)
-- (изменить пост нельзя)
-
-DELETE
-- user-shops (удалить магазин)
-- user-products (удалить товар)
-- user-posts (удалить пост)
+### 📚 Документация API
+- **`/swagger/`** → Primary Backend
+  - Swagger документация основного API
+- **`/mirror/swagger/`** → Mirror Backend
+  - Swagger документация mirror API
 
 
+#### Администрирование БД
+- **`/admin/`** → pgAdmin
+  - Веб-интерфейс для управления PostgreSQL
+### 🔄 Mirror API
+- **`/mirror/api/v1/`** → Mirror Backend
+  - Тестовое/зеркальное API для разработки
 
 
 

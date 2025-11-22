@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./proto/pb/auth";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service AuthService {
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (google.protobuf.Empty);
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+// Requests
+message LoginUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message VerifyTokenRequest {
+  string token = 1;
+}
+
+// Responses
+message LoginUserResponse {
+  string access_token = 1;
+}
+
+message VerifyTokenResponse {
+  TokenPayload payload = 2;
+}
+
+message TokenPayload {
+  string person_id = 1;  // UUID как string
+  Role role = 2;
+  google.protobuf.Timestamp expired_at = 3;
+}
+
+enum Role {
+  ROLE_USER = 0;
+}

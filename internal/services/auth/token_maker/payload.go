@@ -28,6 +28,15 @@ func NewPayload(personID uuid.UUID, role RoleAuth, duration time.Duration) (*Pay
 	return payload, nil
 }
 
+func CreatePayload(personID uuid.UUID, role RoleAuth, expiredAt time.Time) (*Payload, error) {
+	payload := &Payload{
+		PersonID:  personID,
+		Role:      role,
+		ExpiredAt: expiredAt,
+	}
+	return payload, nil
+}
+
 func (payload *Payload) Valid() error {
 	if time.Now().After(payload.ExpiredAt) {
 		return ErrExpiredToken

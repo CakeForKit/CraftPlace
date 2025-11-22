@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	_ "github.com/CakeForKit/CraftPlace.git/docs"
+	_ "github.com/CakeForKit/CraftPlace.git/docs_mirror"
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/middleware"

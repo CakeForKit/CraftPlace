@@ -41,15 +41,15 @@ func tokenFromHeader(c *gin.Context) (string, error) {
 
 func AuthMiddleware(authServ TokenVerifier, authZ auth.AuthZ) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		fmt.Printf("Auth middleware\n\n")
 		accessToken, err := tokenFromHeader(c)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf(" AuthMiddleware %w", err.Error())})
 			return
 		}
 		payload, err := authServ.VerifyByToken(accessToken)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("AuthMiddleware %w", err.Error())})
 			return
 		}
 

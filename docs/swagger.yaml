@@ -1,4 +1,4 @@
-basePath: /mirror/api/v1
+basePath: /api/v1
 definitions:
   api.ErrorResponse:
     properties:
@@ -341,7 +341,7 @@ paths:
       summary: Регистрация пользователя
       tags:
       - аутентификация
-  /categories:
+  /craftplace/categories:
     get:
       consumes:
       - application/json
@@ -382,7 +382,7 @@ paths:
       summary: Получить категории
       tags:
       - Поиск
-  /categories/{id_category}:
+  /craftplace/categories/{id_category}:
     get:
       consumes:
       - application/json
@@ -416,7 +416,7 @@ paths:
       summary: Получить категорию по ID
       tags:
       - Поиск
-  /posts:
+  /craftplace/posts:
     get:
       consumes:
       - application/json
@@ -459,7 +459,7 @@ paths:
       summary: Получить посты
       tags:
       - Поиск
-  /products:
+  /craftplace/products:
     get:
       consumes:
       - application/json
@@ -523,7 +523,7 @@ paths:
       summary: Получить товары
       tags:
       - Поиск
-  /shops:
+  /craftplace/shops:
     get:
       consumes:
       - application/json
@@ -570,6 +570,41 @@ paths:
       summary: Получить магазины
       tags:
       - Поиск
+  /craftplace/shops/{id_shop}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о магазине по его идентификатору
+      parameters:
+      - description: ID магазина
+        format: uuid
+        in: path
+        name: id_shop
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о магазине
+          schema:
+            $ref: '#/definitions/reqresp.ShopResponse'
+        "400":
+          description: Неверный формат ID магазина
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Магазин не найден
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Получить магазин по ID
+      tags:
+      - Поиск
+  /shops:
     post:
       consumes:
       - application/json
@@ -651,39 +686,6 @@ paths:
       summary: Удалить магазин
       tags:
       - Магазины
-    get:
-      consumes:
-      - application/json
-      description: Возвращает информацию о магазине по его идентификатору
-      parameters:
-      - description: ID магазина
-        format: uuid
-        in: path
-        name: id_shop
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о магазине
-          schema:
-            $ref: '#/definitions/reqresp.ShopResponse'
-        "400":
-          description: Неверный формат ID магазина
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Магазин не найден
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Получить магазин по ID
-      tags:
-      - Поиск
     put:
       consumes:
       - application/json

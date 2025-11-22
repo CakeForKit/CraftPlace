@@ -9,7 +9,6 @@ import (
 	"github.com/CakeForKit/CraftPlace.git/internal/api"
 	"github.com/CakeForKit/CraftPlace.git/internal/cnfg"
 	"github.com/CakeForKit/CraftPlace.git/internal/middleware"
-	categoryrep "github.com/CakeForKit/CraftPlace.git/internal/repository/category_rep"
 	postrep "github.com/CakeForKit/CraftPlace.git/internal/repository/post_rep"
 	productrep "github.com/CakeForKit/CraftPlace.git/internal/repository/product_rep"
 	shoprep "github.com/CakeForKit/CraftPlace.git/internal/repository/shop_rep"
@@ -20,7 +19,6 @@ import (
 	tokenmaker "github.com/CakeForKit/CraftPlace.git/internal/services/auth/token_maker"
 	postservice "github.com/CakeForKit/CraftPlace.git/internal/services/post_service"
 	productservice "github.com/CakeForKit/CraftPlace.git/internal/services/product_service"
-	"github.com/CakeForKit/CraftPlace.git/internal/services/searcher"
 	shopservice "github.com/CakeForKit/CraftPlace.git/internal/services/shop_service"
 	userselfservice "github.com/CakeForKit/CraftPlace.git/internal/services/user_self_service"
 	"github.com/gin-contrib/cors"
@@ -82,10 +80,10 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	categoryRep, err := categoryrep.NewPgCategoryRep(ctx, pgCredentials, dbConnCnfg)
-	if err != nil {
-		panic(err.Error())
-	}
+	// categoryRep, err := categoryrep.NewPgCategoryRep(ctx, pgCredentials, dbConnCnfg)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 	// --------------------
 	// ----- Services -----
 	tokenMaker, err := tokenmaker.NewTokenMaker(appCnfg.TokenSymmetricKey)
@@ -105,7 +103,7 @@ func main() {
 	postServ := postservice.NewPostServ(postRep, authz, shopRep)
 	productServ := productservice.NewProductServ(productRep, authz, shopRep)
 	userSelfServ := userselfservice.NewUserSelfServ(authz, userRep, hasher)
-	searcherServ := searcher.NewSearcher(categoryRep, shopRep, postRep, productRep)
+	// searcherServ := searcher.NewSearcher(categoryRep, shopRep, postRep, productRep)
 	// --------------------
 
 	// ----- Groups -----
@@ -113,10 +111,10 @@ func main() {
 	usersGroup := apiGroup.Group("/")
 	usersGroup.Use(middleware.AuthMiddleware(authUserServ, authz))
 	// ------------------
-	searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
-	_ = searcherRouter
-	authUserRouter := api.NewAuthUserRouter(apiGroup, authUserServ)
-	_ = authUserRouter
+	// searcherRouter := api.NewSearcherRouter(apiGroup, searcherServ)
+	// _ = searcherRouter
+	// authUserRouter := api.NewAuthUserRouter(apiGroup, authUserServ)
+	// _ = authUserRouter
 	shopRouter := api.NewShopRouter(usersGroup, shopServ)
 	_ = shopRouter
 	postRouter := api.NewPostRouter(usersGroup, postServ)

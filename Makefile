@@ -1,12 +1,31 @@
 SCRIPTS := ./scripts
-DC_CI := ./deployment/docker-compose.ci.yml
-DC_DEV := ./deployment/docker-compose.dev.yml
+DC_CI := ./craftplace-deployment/docker-compose.ci.yml
+DC_DEV := ./craftplace-deployment/docker-compose.dev.yml
 TEST_DB_ENV := ./configs/test_db.env
 DB_ENV := ./configs/db_config.env
 
+.PHONY: gen
+gen:
+	protoc -I proto ./proto/auth_user.proto --go_out=./ --go-grpc_out=./
+
 .PHONY: prep
-prep: run_db run_pgadmin run_app run_rep run_mirror run_loki_graf run_ng 
+prep: run_db run_pgadmin serv
 	
+.PHONY: serv
+serv: app_run auth_run searcher_run run_mirror run_loki_graf run_ng 
+
+.PHONY: app_run
+app_run:
+	docker compose -v -f $(DC_DEV) up --build app_craftplace app_craftplace_replica1 app_craftplace_replica2 -d
+
+
+.PHONY: auth_run
+auth_run:
+	docker compose -v -f $(DC_DEV) up --build auth_craftplace auth_craftplace_replica1 auth_craftplace_replica2 -d
+
+.PHONY: searcher_run
+searcher_run:
+	docker compose -v -f $(DC_DEV) up --build searcher_craftplace searcher_craftplace_replica1 searcher_craftplace_replica2 -d
 
 .PHONY: run_loki_graf
 run_loki_graf:
@@ -100,7 +119,13 @@ down_pgadmin:
 .PHONY: swagger
 swagger:
 	swag init -g ./cmd/dev/main.go --output ./docs
+	swag init -g ./cmd/mirror/main.go --output ./docs_mirror
 
+.PHONY: docs_clear
+docs_clear:
+	sudo rm -rf ./docs/*
+	sudo rm -rf ./tmp/*
+	make swagger
 
 # ---- Allure -----
 ALLURE_OUTPUT_PATH := $(shell pwd)
